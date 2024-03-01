@@ -1,8 +1,30 @@
 """
 Experiment into automating the majority of the analysis for the Digital Production Hub audit
 """
+import datetime
 import pandas as pd
 import sys
+
+
+def check_dates(df):
+    """Find deletion dates that are expired or need manual review and add to Audit_result column
+
+    :parameter
+    df (pandas dataframe): data from the inventory after cleanup
+
+    :returns
+    df (pandas dataframe): data from inventory with updated Audit_Result column
+    """
+    # Finds any dates that are earlier than the current date.
+    today = datetime.datetime.today()
+    column = 'Date to review for deletion (required)'
+
+    df.loc[(df[column].apply(type) == datetime.datetime) & (df[column] < today), 'Audit_Result'] = 'Date expired'
+
+    # Finds any non-dates that are not "Permanent" or "Permanent" to flag for manual review.
+    df.loc[(df[column].apply(type) == str) & (df[column].str.lower() != 'permanent'), 'Audit_Result'] = 'Check date'
+
+    return df
 
 
 def check_required(df):
@@ -65,3 +87,6 @@ if __name__ == '__main__':
 
     # Checks for blank cells in required columns.
     inventory_df = check_required(inventory_df)
+
+    # Checks for dates to review for deletion that are expired or need manual review
+    inventory_df = check_dates(inventory_df)
