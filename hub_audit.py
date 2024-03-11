@@ -22,7 +22,7 @@ def check_argument(arg_list):
     # If the number of arguments is incorrect, inventory_path is set to None.
     # If there is no error, error is set to None.
     if len(arg_list) == 1:
-        return None, "Missing required argument: inventory"
+        return None, 'Missing required argument: inventory'
     elif len(arg_list) == 2:
         inventory = arg_list[1]
         if os.path.exists(inventory):
@@ -30,7 +30,7 @@ def check_argument(arg_list):
         else:
             return None, f'Provided inventory "{inventory}" does not exist'
     else:
-        return None, "Too many arguments. Should just have one argument, inventory"
+        return None, 'Too many arguments. Should just have one argument, inventory'
 
 
 def check_dates(df):
@@ -75,6 +75,34 @@ def check_required(df):
     return df
 
 
+def hub_size():
+    """Calculate the total size of all Hub shares in TB
+
+    :parameter
+    None
+
+    :returns
+    total (float): combined sizes of all Hub shares in TB
+    """
+
+    # For testing, a list of shares to include, which are in this repo.
+    # For production, may import from a configuration file.
+    shares = [os.path.join('shares', 'A'), os.path.join('shares', 'B'), os.path.join('shares', 'C')]
+
+    # Adds the size of each share to the total.
+    total_bytes = 0
+    for share in shares:
+        for root, dirs, files in os.walk(share):
+            for file in files:
+                file_path = os.path.join(root, file)
+                total_bytes += os.path.getsize(file_path)
+
+    # For testing, converts the size to MB and round to 2 decimals.
+    # In production, plan to convert to a TB round to a whole number.
+    total_mb = round(total_bytes/1000000, 2)
+    return total_mb
+
+
 def read_inventory(path):
     """Read inventory into dataframe, drop unneeded rows, and add an Audit_Result column
 
@@ -107,7 +135,7 @@ def read_inventory(path):
 if __name__ == '__main__':
 
     # Path to the inventory (from the script argument).
-    # If it is missing or not a valid path, exits the script.
+    # If the argument is missing or not a valid path, exits the script.
     inventory_path, error = check_argument(sys.argv)
     if error:
         print(error)
@@ -115,6 +143,11 @@ if __name__ == '__main__':
 
     # Reads the inventory, a multiple sheet Excel spreadsheet, into one pandas dataframe, with cleanup.
     inventory_df = read_inventory(inventory_path)
+
+    # Prints statistics (number of rows in the inventory and TB in all shares) for the audit results spreadsheet.
+    print("Rows in the inventory (after cleanup):", len(inventory_df.index))
+    size = hub_size()
+    print("Size of shares in TB:", size)
 
     # Checks for blank cells in required columns.
     inventory_df = check_required(inventory_df)
