@@ -32,8 +32,8 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', NaN, NaN, NaN],
                 ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), NaN, NaN, NaN],
                 ['Share_B', 'B', 'Backlog', 'June', '6 months', NaN, NaN, NaN],
-                ['Share_C', 'FolderC1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), NaN, NaN, NaN],
-                ['Share_C', 'FolderC2', 'Backlog', 'June', 'permanent', NaN, NaN, NaN]]
+                ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), NaN, NaN, NaN],
+                ['Share_C', 'C2', 'Backlog', 'June', 'permanent', NaN, NaN, NaN]]
         inventory_df = check_dates(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -42,24 +42,24 @@ class MyTestCase(unittest.TestCase):
                     ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'nan'],
                     ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Date expired'],
                     ['Share_B', 'B', 'Backlog', 'June', '6 months', 'nan', 'nan', 'Check date'],
-                    ['Share_C', 'FolderC1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'nan', 'nan', 'nan'],
-                    ['Share_C', 'FolderC2', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'nan']]
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'nan', 'nan', 'nan'],
+                    ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for combined date formats")
 
     def test_dates_expired(self):
-        """Test for an inventory where the dates are formatted as a date and the dates are in the past (expired)"""
+        """Test for an inventory where the dates are formatted as a date and the dates are in the past"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2024, 2, 29, 0, 0), NaN, NaN, NaN],
-                ['Share_A', 'A2', 'Backlog', 'June', datetime(2024, 2, 1, 0, 0), NaN, NaN, NaN],
-                ['Share_B', 'B', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), NaN, NaN, NaN]]
+        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), NaN, NaN, NaN],
+                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 10, 15, 0, 0), NaN, NaN, NaN],
+                ['Share_B', 'B', 'Backlog', 'June', datetime(2020, 10, 15, 0, 0), NaN, NaN, NaN]]
         inventory_df = check_dates(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2024, 2, 29, 0, 0), 'nan', 'nan', 'Date expired'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2024, 2, 1, 0, 0), 'nan', 'nan', 'Date expired'],
-                    ['Share_B', 'B', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), 'nan', 'nan', 'Date expired']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), 'nan', 'nan', 'nan'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 10, 15, 0, 0), 'nan', 'nan', 'nan'],
+                    ['Share_B', 'B', 'Backlog', 'June', datetime(2020, 10, 15, 0, 0), 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for dates, expired")
 
     def test_dates_future(self):

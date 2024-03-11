@@ -36,21 +36,31 @@ def check_argument(arg_list):
 def check_dates(df):
     """Find deletion dates that are expired or need manual review and add to Audit_result column
 
+    A date needs manual review if it is text (e.g., 6 months) instead of a specific day,
+    but not if it is "Permanent" or "permanent".
+
     :parameter
     df (pandas dataframe): data from the inventory after cleanup
 
     :returns
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
-    # Finds any dates that are earlier than the current date.
     today = datetime.datetime.today()
-    column = 'Date to review for deletion (required)'
+    date_column = 'Date to review for deletion (required)'
 
-    df.loc[(df[column].apply(type) == datetime.datetime) & (df[column] < today), 'Audit_Result'] = 'Date expired'
+    # Portion of the dataframe where the date is an actual day.
+    df_date = df[df[date_column].apply(type) == datetime.datetime].copy()
+    df_date.loc[df_date[date_column] < today, 'Audit_Result'] = 'Date expired'
+    print("date", df_date.shape)
 
-    # Finds any non-dates that are not "Permanent" or "Permanent" to flag for manual review.
-    df.loc[(df[column].apply(type) == str) & (df[column].str.lower() != 'permanent'), 'Audit_Result'] = 'Check date'
+    # The rest of the dataframe where the date is text.
+    df_nondate = df[df[date_column].apply(type) != datetime.datetime].copy()
+    df_nondate.loc[df_nondate[date_column].str.lower() != 'permanent', 'Audit_Result'] = 'Check date'
+    print("nondate", df_nondate.shape)
 
+    # Recombines the dataframes with the updated Audit_Result column.
+    df = pd.concat([df_date, df_nondate])
+    df = df.sort_values(['Share (required)', 'Folder Name (required if not share)'])
     return df
 
 
