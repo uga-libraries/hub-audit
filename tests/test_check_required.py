@@ -1,5 +1,8 @@
 """
 Tests for the function check_required(), which finds missing values in required columns.
+
+For easier testing, the dataframe with inventory data is made within the function using pandas.
+In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
 import unittest
 from hub_audit import check_required
