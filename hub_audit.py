@@ -2,8 +2,35 @@
 Experiment into automating the majority of the analysis for the Digital Production Hub audit
 """
 import datetime
+import os
 import pandas as pd
 import sys
+
+
+def check_argument(arg_list):
+    """Check if the required argument is present and a valid path
+
+    :parameter
+    arg_list (list): the contents of sys.argv after the script is run
+
+    :returns
+    inventory (string, None): string with the path to the inventory, or None if error
+    error (string, None): string with the error message, or None if no error
+    """
+
+    # Verifies the required argument (inventory) is present and a valid path.
+    # If the number of arguments is incorrect, inventory_path is set to None.
+    # If there is no error, error is set to None.
+    if len(arg_list) == 1:
+        return None, "Missing required argument: inventory"
+    elif len(arg_list) == 2:
+        inventory = arg_list[1]
+        if os.path.exists(inventory):
+            return inventory, None
+        else:
+            return None, f'Provided inventory "{inventory}" does not exist'
+    else:
+        return None, "Too many arguments. Should just have one argument, inventory"
 
 
 def check_dates(df):
@@ -80,7 +107,11 @@ def read_inventory(path):
 if __name__ == '__main__':
 
     # Path to the inventory (from the script argument).
-    inventory_path = sys.argv[1]
+    # If it is missing or not a valid path, exits the script.
+    inventory_path, error = check_argument(sys.argv)
+    if error:
+        print(error)
+        sys.exit(1)
 
     # Reads the inventory, a multiple sheet Excel spreadsheet, into one pandas dataframe, with cleanup.
     inventory_df = read_inventory(inventory_path)
