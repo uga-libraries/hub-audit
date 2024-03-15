@@ -1,5 +1,6 @@
 """
-Experiment into automating the majority of the analysis for the Digital Production Hub audit
+Experiment into automating the majority of the analysis for the Digital Production Hub audit.
+Required argument: path to the Digital Production Hub Inventory (Excel spreadsheet)
 """
 import datetime
 import os
@@ -11,10 +12,10 @@ from config import shares
 def check_argument(arg_list):
     """Check if the required argument is present and a valid path
 
-    :parameter
+    @param
     arg_list (list): the contents of sys.argv after the script is run
 
-    :returns
+    @return
     inventory (string, None): string with the path to the inventory, or None if error
     error (string, None): string with the error message, or None if no error
     """
@@ -35,25 +36,27 @@ def check_argument(arg_list):
 
 
 def check_dates(df):
-    """Find deletion dates that are expired or need manual review and add to Audit_result column
+    """Find dates to review for deletion that are expired or need manual review
 
     A date needs manual review if it is text (e.g., 6 months) instead of a specific day,
     but not if it is "Permanent" or "permanent".
 
-    :parameter
-    df (pandas dataframe): data from the inventory after cleanup
+    @param
+    df (pandas dataframe): data from the inventory
 
-    :returns
+    @return
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
 
-    # Portion of the dataframe where the date is an actual day.
-    today = datetime.datetime.today()
+    # For the portion of the dataframe where the date is a day,
+    # updates Audit_Result if the date is earlier than today.
     df_date = df[df['Review_Date'].apply(type) == datetime.datetime].copy()
+    today = datetime.datetime.today()
     df_date.loc[df_date['Review_Date'] < today, 'Audit_Result'] = 'Date expired'
     print("date", df_date.shape)
 
-    # The rest of the dataframe where the date is text.
+    # For the portion of the dataframe where the date is not a day (not datetime),
+    # updates Audit_Result if it isn't 'permanent' (case insensitive).
     df_nondate = df[df['Review_Date'].apply(type) != datetime.datetime].copy()
     df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Result'] = 'Check date'
     print("nondate", df_nondate.shape)
@@ -67,13 +70,13 @@ def check_dates(df):
 def check_inventory(df, share_list):
     """Find folders in the share but not the inventory or in the inventory but not the share
 
-    :parameter
+    @param
     df (pandas dataframe): data from the inventory after cleanup
-    shares (list): a list of dictionaries with data about each share: share name, inventory pattern,
+    shares (list): a list of dictionaries with data about each share: share name, path, inventory pattern,
                    and a list of second-level folders to include, which is empty if none are included
 
-    :returns
-    df (pandas dataframe): data from inventory updated with inventory match errors
+    @return
+    df (pandas dataframe): data from inventory updated with inventory match error
     Audit_Result column is updated for folders that are not in the share
     Folders are added to the dataframe if they are in the share but not the inventory
     """
@@ -94,7 +97,7 @@ def check_inventory(df, share_list):
                 share_inventory['Share'].append(share_name)
                 share_inventory['Folder'].append(item)
 
-        # Shares where the inventory includes second level folders for any top level folder in the list.
+        # Shares where the inventory includes second level folders for any top level folder in the folders list.
         elif share['pattern'] == 'second':
             for item in os.listdir(share['path']):
                 if item in share['folders']:
@@ -120,27 +123,27 @@ def check_inventory(df, share_list):
     df.loc[df['_merge'] == 'right_only', 'Audit_Result'] = 'Not in inventory'
 
     # Cleans up and returns the dataframe.
-    # The temporary column '_merge' is removed and the values are sorted.
+    # The temporary column '_merge' is removed and the rows are sorted.
     df = df.drop(['_merge'], axis=1)
     df = df.sort_values(['Share', 'Folder'])
     return df
 
 
 def check_required(df):
-    """Find blank cells in required columns and add error to Audit_Result column
+    """Find blank cells in required columns
 
-    :parameter
+    @param
     df (pandas dataframe): data from the inventory after cleanup
 
-    :returns
+    @return
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
 
-    # List of required columns.
+    # List of required columns, after being renamed by the script.
     required = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date']
 
     # Find the blank cells in each of the required columns
-    # and add that information to the Audit_Result column.
+    # and adds an error to the Audit_Result column.
     for column_name in required:
         df.loc[pd.isna(df[column_name]), 'Audit_Result'] = 'Missing required data'
 
@@ -150,10 +153,10 @@ def check_required(df):
 def hub_size():
     """Calculate the total size of all Hub shares in TB
 
-    :parameter
+    @param
     None
 
-    :returns
+    @return
     total (float): combined sizes of all Hub shares in TB
     """
 
@@ -180,10 +183,10 @@ def read_inventory(path):
 
     Clean up includes dropping unneeded rows and simplifying column names.
 
-    :parameter
+    @param
     path (string): path to the inventory, which is a script argument
 
-    :returns
+    @return
     df (pandas dataframe): data from the inventory after cleanup
     """
 
@@ -236,8 +239,8 @@ if __name__ == '__main__':
     # Checks for blank cells in required columns.
     inventory_df = check_required(inventory_df)
 
-    # Checks for dates to review for deletion that are expired or need manual review
+    # Checks for dates to review for deletion that are expired or need manual review.
     inventory_df = check_dates(inventory_df)
 
-    # Checks for mismatches between the inventory and Hub shares
+    # Checks for mismatches between the inventory and Hub shares.
     inventory_df = check_inventory(inventory_df, shares)
