@@ -244,3 +244,9 @@ if __name__ == '__main__':
 
     # Checks for mismatches between the inventory and Hub shares.
     inventory_df = check_inventory(inventory_df, shares)
+
+    # Saves the inventory to a CSV for additional manual review.
+    inventory_df['Audit_Result'] = inventory_df['Audit_Result'].replace('', 'Correct')
+    csv_path = os.path.join(os.path.dirname(inventory_path),
+                            f"digital_production_hub_audit_{datetime.date.today().strftime('%Y-%m')}.csv")
+    inventory_df.to_csv(csv_path, index=False)
