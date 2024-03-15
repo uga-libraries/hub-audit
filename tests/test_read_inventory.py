@@ -39,8 +39,8 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(result, expected, "Problem with test for deletions")
 
     def test_usual(self):
-        """Test for an inventory with the usual data data"""
-        inventory_path = join('inventories', 'Digital Production Hub Inventory.xlsx')
+        """Test for an inventory with the usual data"""
+        inventory_path = join('inventories', 'Digital Production Hub Inventory_Usual.xlsx')
         inventory_df = read_inventory(inventory_path)
 
         result = inventory_df.fillna('')
