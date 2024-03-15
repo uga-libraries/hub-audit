@@ -80,8 +80,7 @@ def check_inventory(df, share_list):
     Folders are added to the dataframe if they are in the share but not the inventory
     """
 
-    # Makes an inventory of the contents of each share, which will be compared to the inventory dataframe.
-    # Data is stored in a dictionary while iterating on each share and converted to a dataframe at the end.
+    # Makes an inventory of the contents of every share.
     share_inventory = {'Share_Name': [], 'Share_Folder': []}
     for share in share_list:
         share_name = share['name']
@@ -112,8 +111,22 @@ def check_inventory(df, share_list):
         else:
             print(f'Error: config has an unexpected pattern')
 
+    # Converts the share inventory to a dataframe and aligns with the original inventory dataframe.
+    # Both the share and folder name need to be the same for a row to match in both dataframes.
+    # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
     share_df = pd.DataFrame.from_dict(share_inventory)
-    return share_df
+    share_df = share_df.rename({'Share_Name': 'Share (required)', 'Share_Folder': 'Folder Name (required if not share)'}, axis=1)
+    df = df.merge(share_df, on=['Share (required)', 'Folder Name (required if not share)'], how='outer', indicator=True)
+
+    # Updates the "Audit_Result" column for rows that are not in both shares.
+    df.loc[df['_merge'] == 'left_only', 'Audit_Result'] = 'Not in share'
+    df.loc[df['_merge'] == 'right_only', 'Audit_Result'] = 'Not in inventory'
+
+    # Cleans up and returns the dataframe.
+    # The temporary column is merged and the values are sorted.
+    df = df.drop(['_merge'], axis=1)
+    df = df.sort_values(['Share (required)', 'Folder Name (required if not share)'])
+    return df
 
 
 def check_required(df):

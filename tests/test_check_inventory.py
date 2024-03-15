@@ -41,14 +41,12 @@ class MyTestCase(unittest.TestCase):
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        # expected = [self.columns,
-        #             ['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
-        expected = [['Share_Name', 'Share_Folder'], ['Second_Level', 'S_1\\S_1a'], ['Second_Level', 'S_1\\S_1b'],
-                    ['Second_Level', 'S_2'], ['Second_Level', 'S_3\\S_3a'], ['Second_Level', 'S_3\\S_3b']]
+        expected = [self.columns,
+                    ['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for correct, second level folders")
 
     def test_correct_share(self):
@@ -60,10 +58,8 @@ class MyTestCase(unittest.TestCase):
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        # expected = [self.columns,
-        #             ['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
-        expected = [['Share_Name', 'Share_Folder'],
-                    ['mezz_one', 'mezz_one']]
+        expected = [self.columns,
+                    ['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for correct, share name")
 
     def test_correct_top(self):
@@ -76,12 +72,11 @@ class MyTestCase(unittest.TestCase):
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        # expected = [self.columns,
-        #             ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
-        expected = [['Share_Name', "Share_Folder"], ['Top', 'T_1'], ['Top', 'T_2']]
+        expected = [self.columns,
+                    ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for correct, top folders")
-
+    #
     def test_error_extra_file(self):
         """Test for when a share has a file at the top level of the share, instead of just folders"""
         # Makes variables for function input and run the function being tested.
@@ -92,11 +87,67 @@ class MyTestCase(unittest.TestCase):
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        # expected = [self.columns,
-        #             ['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
-        #             ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
-        expected = [['Share_Name', 'Share_Folder'], ['Extra', 'E_1'], ['Extra', 'E_2'], ['Extra', 'Text.txt']]
+        expected = [self.columns,
+                    ['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Extra', 'Text.txt', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory']]
         self.assertEqual(result, expected, "Problem with test for error, extra file")
+
+    def test_error_inventory_only(self):
+        """Test for when folders are in the inventory but not the share"""
+        # Makes variables for function input and run the function being tested.
+        config_shares = [{'name': 'Top', 'path': join('shares', 'Top'), 'pattern': 'top', 'folders': []}]
+        rows = [['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN]]
+        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+
+        # Tests if the resulting dataframe has the expected data.
+        result = df_to_list(inventory_df)
+        expected = [self.columns,
+                    ['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'Not in share'],
+                    ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'Not in share'],
+                    ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'Not in share'],
+                    ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
+        self.assertEqual(result, expected, "Problem with test for error, inventory only")
+
+    def test_error_inventory_share(self):
+        """Test for when folders are missing from both the inventory and share"""
+        # Makes variables for function input and run the function being tested.
+        config_shares = [{'name': 'Top', 'path': join('shares', 'Top'), 'pattern': 'top', 'folders': []}]
+        rows = [['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN]]
+        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+
+        # Tests if the resulting dataframe has the expected data.
+        result = df_to_list(inventory_df)
+        expected = [self.columns,
+                    ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'Not in share'],
+                    ['Top', 'T_1', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory'],
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
+        self.assertEqual(result, expected, "Problem with test for error, inventory and share")
+
+    def test_error_share_only(self):
+        """Test for when folders are in the share but not the inventory"""
+        # Makes variables for function input and run the function being tested.
+        config_shares = [{'name': 'Second_Level', 'path': join('shares', 'Second_Level'), 'pattern': 'second',
+                         'folders': ['S_1', 'S_3']}]
+        rows = [['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN]]
+        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+
+        # Tests if the resulting dataframe has the expected data.
+        result = df_to_list(inventory_df)
+        expected = [self.columns,
+                    ['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_1\\S_1b', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory'],
+                    ['Second_Level', 'S_2', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory'],
+                    ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Second_Level', 'S_3\\S_3b', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory']]
+        self.assertEqual(result, expected, "Problem with test for error, share only")
 
 
 if __name__ == '__main__':
