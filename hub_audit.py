@@ -5,6 +5,7 @@ import datetime
 import os
 import pandas as pd
 import sys
+from config import shares
 
 
 def check_argument(arg_list):
@@ -45,6 +46,7 @@ def check_dates(df):
     :returns
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
+
     today = datetime.datetime.today()
     date_column = 'Date to review for deletion (required)'
 
@@ -64,6 +66,56 @@ def check_dates(df):
     return df
 
 
+def check_inventory(df, share_list):
+    """Find folders in the share but not the inventory or in the inventory but not the share
+
+    :parameter
+    df (pandas dataframe): data from the inventory after cleanup
+    shares (list): a list of dictionaries with data about each share: share name, inventory pattern,
+                   and a list of second-level folders to include, which is empty if none are included
+
+    :returns
+    df (pandas dataframe): data from inventory updated with inventory match errors
+    Audit_Result column is updated for folders that are not in the share
+    Folders are added to the dataframe if they are in the share but not the inventory
+    """
+
+    # Makes an inventory of the contents of each share, which will be compared to the inventory dataframe.
+    # Data is stored in a dictionary while iterating on each share and converted to a dataframe at the end.
+    share_inventory = {'Share_Name': [], 'Share_Folder': []}
+    for share in share_list:
+        share_name = share['name']
+
+        # Shares where the inventory just has the share name.
+        if share['pattern'] == 'share':
+            share_inventory['Share_Name'].append(share_name)
+            share_inventory['Share_Folder'].append(share_name)
+
+        # Shares where the inventory is just the top level folders.
+        elif share['pattern'] == 'top':
+            for item in os.listdir(share['path']):
+                share_inventory['Share_Name'].append(share_name)
+                share_inventory['Share_Folder'].append(item)
+
+        # Shares where the inventory includes second level folders for any top level folder in the list.
+        elif share['pattern'] == 'second':
+            for item in os.listdir(share['path']):
+                if item in share['folders']:
+                    for second_item in os.listdir(os.path.join(share['path'], item)):
+                        share_inventory['Share_Name'].append(share_name)
+                        share_inventory['Share_Folder'].append(f'{item}\\{second_item}')
+                else:
+                    share_inventory['Share_Name'].append(share_name)
+                    share_inventory['Share_Folder'].append(item)
+
+        # Catch shares with unexpected patterns.
+        else:
+            print(f'Error: config has an unexpected pattern')
+
+    share_df = pd.DataFrame.from_dict(share_inventory)
+    return share_df
+
+
 def check_required(df):
     """Find blank cells in required columns and add error to Audit_Result column
 
@@ -73,6 +125,7 @@ def check_required(df):
     :returns
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
+
     # List of required columns.
     required = ['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
                 'Person Responsible (required)', 'Date to review for deletion (required)']
@@ -122,6 +175,7 @@ def read_inventory(path):
     :returns
     df (pandas dataframe): data from the inventory after cleanup
     """
+
     # Reads every sheet in the Excel spreadsheet into a single dataframe.
     df = pd.concat(pd.read_excel(path, sheet_name=None), ignore_index=True)
 
@@ -164,3 +218,6 @@ if __name__ == '__main__':
 
     # Checks for dates to review for deletion that are expired or need manual review
     inventory_df = check_dates(inventory_df)
+
+    # Checks for mismatches between the inventory and Hub shares
+    inventory_df = check_inventory(inventory_df, shares)
