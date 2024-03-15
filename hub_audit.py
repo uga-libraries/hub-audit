@@ -47,22 +47,20 @@ def check_dates(df):
     df (pandas dataframe): data from inventory with updated Audit_Result column
     """
 
-    today = datetime.datetime.today()
-    date_column = 'Date to review for deletion (required)'
-
     # Portion of the dataframe where the date is an actual day.
-    df_date = df[df[date_column].apply(type) == datetime.datetime].copy()
-    df_date.loc[df_date[date_column] < today, 'Audit_Result'] = 'Date expired'
+    today = datetime.datetime.today()
+    df_date = df[df['Review_Date'].apply(type) == datetime.datetime].copy()
+    df_date.loc[df_date['Review_Date'] < today, 'Audit_Result'] = 'Date expired'
     print("date", df_date.shape)
 
     # The rest of the dataframe where the date is text.
-    df_nondate = df[df[date_column].apply(type) != datetime.datetime].copy()
-    df_nondate.loc[df_nondate[date_column].str.lower() != 'permanent', 'Audit_Result'] = 'Check date'
+    df_nondate = df[df['Review_Date'].apply(type) != datetime.datetime].copy()
+    df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Result'] = 'Check date'
     print("nondate", df_nondate.shape)
 
     # Recombines the dataframes with the updated Audit_Result column.
     df = pd.concat([df_date, df_nondate])
-    df = df.sort_values(['Share (required)', 'Folder Name (required if not share)'])
+    df = df.sort_values(['Share', 'Folder'])
     return df
 
 
@@ -81,31 +79,31 @@ def check_inventory(df, share_list):
     """
 
     # Makes an inventory of the contents of every share.
-    share_inventory = {'Share_Name': [], 'Share_Folder': []}
+    share_inventory = {'Share': [], 'Folder': []}
     for share in share_list:
         share_name = share['name']
 
         # Shares where the inventory just has the share name.
         if share['pattern'] == 'share':
-            share_inventory['Share_Name'].append(share_name)
-            share_inventory['Share_Folder'].append(share_name)
+            share_inventory['Share'].append(share_name)
+            share_inventory['Folder'].append(share_name)
 
         # Shares where the inventory is just the top level folders.
         elif share['pattern'] == 'top':
             for item in os.listdir(share['path']):
-                share_inventory['Share_Name'].append(share_name)
-                share_inventory['Share_Folder'].append(item)
+                share_inventory['Share'].append(share_name)
+                share_inventory['Folder'].append(item)
 
         # Shares where the inventory includes second level folders for any top level folder in the list.
         elif share['pattern'] == 'second':
             for item in os.listdir(share['path']):
                 if item in share['folders']:
                     for second_item in os.listdir(os.path.join(share['path'], item)):
-                        share_inventory['Share_Name'].append(share_name)
-                        share_inventory['Share_Folder'].append(f'{item}\\{second_item}')
+                        share_inventory['Share'].append(share_name)
+                        share_inventory['Folder'].append(f'{item}\\{second_item}')
                 else:
-                    share_inventory['Share_Name'].append(share_name)
-                    share_inventory['Share_Folder'].append(item)
+                    share_inventory['Share'].append(share_name)
+                    share_inventory['Folder'].append(item)
 
         # Catch shares with unexpected patterns.
         else:
@@ -115,17 +113,16 @@ def check_inventory(df, share_list):
     # Both the share and folder name need to be the same for a row to match in both dataframes.
     # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
     share_df = pd.DataFrame.from_dict(share_inventory)
-    share_df = share_df.rename({'Share_Name': 'Share (required)', 'Share_Folder': 'Folder Name (required if not share)'}, axis=1)
-    df = df.merge(share_df, on=['Share (required)', 'Folder Name (required if not share)'], how='outer', indicator=True)
+    df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
 
     # Updates the "Audit_Result" column for rows that are not in both shares.
     df.loc[df['_merge'] == 'left_only', 'Audit_Result'] = 'Not in share'
     df.loc[df['_merge'] == 'right_only', 'Audit_Result'] = 'Not in inventory'
 
     # Cleans up and returns the dataframe.
-    # The temporary column is merged and the values are sorted.
+    # The temporary column '_merge' is removed and the values are sorted.
     df = df.drop(['_merge'], axis=1)
-    df = df.sort_values(['Share (required)', 'Folder Name (required if not share)'])
+    df = df.sort_values(['Share', 'Folder'])
     return df
 
 
@@ -140,8 +137,7 @@ def check_required(df):
     """
 
     # List of required columns.
-    required = ['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
-                'Person Responsible (required)', 'Date to review for deletion (required)']
+    required = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date']
 
     # Find the blank cells in each of the required columns
     # and add that information to the Audit_Result column.
@@ -180,7 +176,9 @@ def hub_size():
 
 
 def read_inventory(path):
-    """Read inventory into dataframe, drop unneeded rows, and add an Audit_Result column
+    """Read inventory into dataframe, clean up, and add an Audit_Result column
+
+    Clean up includes dropping unneeded rows and simplifying column names.
 
     :parameter
     path (string): path to the inventory, which is a script argument
@@ -202,6 +200,15 @@ def read_inventory(path):
 
     # Removes blank rows.
     df = df.dropna(how='all')
+
+    # Simplifies column names.
+    df = df.rename({'Share (required)': 'Share',
+                    'Folder Name (required if not share)': 'Folder',
+                    'Use Policy Category (required)': 'Use',
+                    'Person Responsible (required)': 'Responsible',
+                    'Date to review for deletion (required)': 'Review_Date',
+                    'Additional information (optional)': 'Notes',
+                    'Deleted (date) (optional)': 'Deleted_Date'}, axis=1)
 
     # Adds a new column for recording errors.
     df['Audit_Result'] = ''

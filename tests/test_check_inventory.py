@@ -23,9 +23,7 @@ class MyTestCase(unittest.TestCase):
 
     def setUp(self):
         """Variable used in all the tests."""
-        self.columns = ['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
-                        'Person Responsible (required)', 'Date to review for deletion (required)',
-                        'Additional information (optional)', 'Deleted (date) (optional)', 'Audit_Result']
+        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result']
 
     def test_correct_second(self):
         """Test for a share where some second level folders are included and the share matches the inventory"""

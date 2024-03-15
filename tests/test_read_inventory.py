@@ -17,9 +17,7 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
-                     'Person Responsible (required)', 'Date to review for deletion (required)',
-                     'Additional information (optional)', 'Deleted (date) (optional)', 'Audit_Result'],
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
                     ['digital_ingest', 'alston01', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', ''],
                     ['digital_ingest', 'alston03', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', ''],
                     ['mezzanine_1', 'mezzanine_1', 'Access/Mezzanine', 'Callie', 'permanent', '', '', '']]
@@ -33,9 +31,7 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
-                     'Person Responsible (required)', 'Date to review for deletion (required)',
-                     'Additional information (optional)', 'Deleted (date) (optional)', 'Audit_Result'],
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
                     ['Dig Stew', 'AIT\\2024-02', 'Backlog', 'Adriane', '3 months', '', '', ''],
                     ['Dig Stew', 'Topic_Modeling', 'Working Files', 'Adriane', datetime(2025, 1, 31), '', '', ''],
                     ['DLG_TWO', 'curation\\athens', 'Backlog', 'Donnie', datetime(2024, 8, 3, 0, 0), '', '', ''],
@@ -49,9 +45,7 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share (required)', 'Folder Name (required if not share)', 'Use Policy Category (required)',
-                     'Person Responsible (required)', 'Date to review for deletion (required)',
-                     'Additional information (optional)', 'Deleted (date) (optional)', 'Audit_Result'],
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
                     ['Hargrett', 'Access\\ms1234', 'Access/Mezzanine',  'Emmeline', 'Permanent', 'Redacted', '', ''],
                     ['Hargrett', 'Access\\Kiosk', 'Access/Mezzanine', 'Emmeline', 'Permanent', '', '', ''],
                     ['Hargrett', 'Oral history temp', 'Transfer', 'Steve', '6 months after creation', '', '', ''],
