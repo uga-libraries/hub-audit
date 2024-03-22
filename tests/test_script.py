@@ -21,7 +21,7 @@ class MyTestCase(unittest.TestCase):
         """Test for when the script runs correctly on all folder sin tests/shares."""
         script_path = join('..', 'hub_audit.py')
         inventory_path = join('inventories', 'Digital Production Hub Inventory.xlsx')
-        result = run(f'python {script_path} "{inventory_path}"', shell=True, stdout=PIPE)
+        result = run(f'python {script_path} "{inventory_path}" test_shares.csv', shell=True, stdout=PIPE)
 
         # Verifies the script printing the correct stats.
         printed = result.stdout.decode('utf-8')
@@ -60,7 +60,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(report_rows, expected, 'Problem with test for audit report contents')
 
     def test_error(self):
-        """Test for when the script argument is not correct and the script exits"""
+        """Test for when the script arguments are missing and the script exits"""
         script_path = join('..', 'hub_audit.py')
 
         # Runs the script without the required argument inventory and tests that it exits.
@@ -70,7 +70,7 @@ class MyTestCase(unittest.TestCase):
         # Runs the script again without the required argument inventory and tests it prints the correct error message.
         output = run(f'python {script_path}', shell=True, stdout=PIPE)
         error_msg = output.stdout.decode('utf-8')
-        expected = 'Missing required argument: inventory\r\n'
+        expected = 'Missing both required arguments, inventory and share information\r\n'
         self.assertEqual(error_msg, expected, 'Problem with test for error message')
 
 
