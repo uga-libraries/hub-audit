@@ -3,6 +3,7 @@ Experiment into automating the majority of the analysis for the Digital Producti
 Required argument: path to the Digital Production Hub Inventory (Excel spreadsheet)
 """
 import datetime
+import numpy as np
 import os
 import pandas as pd
 import sys
@@ -45,25 +46,29 @@ def check_dates(df):
     df (pandas dataframe): data from the inventory
 
     @return
-    df (pandas dataframe): data from inventory with updated Audit_Result column
+    df (pandas dataframe): data from inventory with updated Audit_Dates column
     """
 
     # For the portion of the dataframe where the date is a day,
     # updates Audit_Result if the date is earlier than today.
     df_date = df[df['Review_Date'].apply(type) == datetime.datetime].copy()
     today = datetime.datetime.today()
-    df_date.loc[df_date['Review_Date'] < today, 'Audit_Result'] = 'Date expired'
+    df_date.loc[df_date['Review_Date'] < today, 'Audit_Dates'] = 'Expired'
     # print("date", df_date.shape)
 
     # For the portion of the dataframe where the date is not a day (not datetime),
     # updates Audit_Result if it isn't 'permanent' (case insensitive).
     df_nondate = df[df['Review_Date'].apply(type) != datetime.datetime].copy()
-    df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Result'] = 'Check date'
+    df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Dates'] = 'Review'
     # print("nondate", df_nondate.shape)
 
     # Recombines the dataframes with the updated Audit_Result column.
     df = pd.concat([df_date, df_nondate])
     df = df.sort_values(['Share', 'Folder'])
+
+    # Updates the value of any cells that are still blank (have no errors) with "Correct".
+    df['Audit_Dates'] = df['Audit_Dates'].fillna('Correct')
+
     return df
 
 
@@ -77,7 +82,7 @@ def check_inventory(df, share_list):
 
     @return
     df (pandas dataframe): data from inventory updated with inventory match error
-    Audit_Result column is updated for folders that are not in the share
+    Audit_Inventory column is updated for folders that are not in the share
     Folders are added to the dataframe if they are in the share but not the inventory
     """
 
@@ -119,13 +124,17 @@ def check_inventory(df, share_list):
     df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
 
     # Updates the "Audit_Result" column for rows that are not in both shares.
-    df.loc[df['_merge'] == 'left_only', 'Audit_Result'] = 'Not in share'
-    df.loc[df['_merge'] == 'right_only', 'Audit_Result'] = 'Not in inventory'
+    df.loc[df['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
+    df.loc[df['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
+
+    # Updates the value of any cells that are still blank (have no errors) with "Correct".
+    df['Audit_Inventory'] = df['Audit_Inventory'].fillna('Correct')
 
     # Cleans up and returns the dataframe.
     # The temporary column '_merge' is removed and the rows are sorted.
     df = df.drop(['_merge'], axis=1)
     df = df.sort_values(['Share', 'Folder'])
+
     return df
 
 
@@ -136,16 +145,19 @@ def check_required(df):
     df (pandas dataframe): data from the inventory after cleanup
 
     @return
-    df (pandas dataframe): data from inventory with updated Audit_Result column
+    df (pandas dataframe): data from inventory with updated Audit_Required column
     """
 
     # List of required columns, after being renamed by the script.
     required = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date']
 
     # Find the blank cells in each of the required columns
-    # and adds an error to the Audit_Result column.
+    # and adds an error to the Audit_Required column.
     for column_name in required:
-        df.loc[pd.isna(df[column_name]), 'Audit_Result'] = 'Missing required data'
+        df.loc[pd.isna(df[column_name]), 'Audit_Required'] = 'Missing'
+
+    # Updates the value of any cells that are still blank (have no errors) with "Correct".
+    df['Audit_Required'] = df['Audit_Required'].fillna('Correct')
 
     return df
 
@@ -213,8 +225,10 @@ def read_inventory(path):
                     'Additional information (optional)': 'Notes',
                     'Deleted (date) (optional)': 'Deleted_Date'}, axis=1)
 
-    # Adds a new column for recording errors.
-    df['Audit_Result'] = ''
+    # Adds new columns for recording errors found during the audit, one for each error type.
+    df['Audit_Dates'] = np.nan
+    df['Audit_Inventory'] = np.nan
+    df['Audit_Required'] = np.nan
 
     return df
 
@@ -246,7 +260,6 @@ if __name__ == '__main__':
     inventory_df = check_inventory(inventory_df, shares)
 
     # Saves the inventory to a CSV for additional manual review.
-    inventory_df['Audit_Result'] = inventory_df['Audit_Result'].replace('', 'Correct')
     csv_path = os.path.join(os.path.dirname(inventory_path),
                             f"digital_production_hub_audit_{datetime.date.today().strftime('%Y-%m')}.csv")
     inventory_df.to_csv(csv_path, index=False)

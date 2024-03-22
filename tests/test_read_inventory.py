@@ -17,10 +17,11 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
-                    ['digital_ingest', 'alston01', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', ''],
-                    ['digital_ingest', 'alston03', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', ''],
-                    ['mezzanine_1', 'mezzanine_1', 'Access/Mezzanine', 'Callie', 'permanent', '', '', '']]
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
+                     'Audit_Dates', 'Audit_Inventory', 'Audit_Required'],
+                    ['digital_ingest', 'alston01', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', '', '', ''],
+                    ['digital_ingest', 'alston03', 'Backlog', 'Callie', datetime(2023, 9, 30), '', '', '', '', ''],
+                    ['mezzanine_1', 'mezzanine_1', 'Access/Mezzanine', 'Callie', 'permanent', '', '', '', '', '']]
         self.assertEqual(result, expected, "Problem with test for blank rows")
 
     def test_deletions(self):
@@ -31,11 +32,12 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
-                    ['Dig Stew', 'AIT\\2024-02', 'Backlog', 'Adriane', '3 months', '', '', ''],
-                    ['Dig Stew', 'Topic_Modeling', 'Working Files', 'Adriane', datetime(2025, 1, 31), '', '', ''],
-                    ['DLG_TWO', 'curation\\athens', 'Backlog', 'Donnie', datetime(2024, 8, 3, 0, 0), '', '', ''],
-                    ['DLG_TWO', 'curation\\atlanta', 'Backlog', 'Donnie', datetime(2024, 8, 10, 0, 0), '', '', '']]
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
+                     'Audit_Dates', 'Audit_Inventory', 'Audit_Required'],
+                    ['Dig Stew', 'AIT\\2024-02', 'Backlog', 'Adriane', '3 months', '', '', '', '', ''],
+                    ['Dig Stew', 'Topic_Modeling', 'Working Files', 'Adriane', datetime(2025, 1, 31), '', '', '', '', ''],
+                    ['DLG_TWO', 'curation\\athens', 'Backlog', 'Donnie', datetime(2024, 8, 3, 0, 0), '', '', '', '', ''],
+                    ['DLG_TWO', 'curation\\atlanta', 'Backlog', 'Donnie', datetime(2024, 8, 10, 0, 0), '', '', '', '', '']]
         self.assertEqual(result, expected, "Problem with test for deletions")
 
     def test_usual(self):
@@ -45,13 +47,14 @@ class MyTestCase(unittest.TestCase):
 
         result = inventory_df.fillna('')
         result = [result.columns.tolist()] + result.values.tolist()
-        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 'Audit_Result'],
-                    ['Hargrett', 'Access\\ms1234', 'Access/Mezzanine',  'Emmeline', 'Permanent', 'Redacted', '', ''],
-                    ['Hargrett', 'Access\\Kiosk', 'Access/Mezzanine', 'Emmeline', 'Permanent', '', '', ''],
-                    ['Hargrett', 'Oral history temp', 'Transfer', 'Steve', '6 months after creation', '', '', ''],
-                    ['MAGIL_GGP', 'Legislative docs', 'Transfer', 'Sarah', datetime(2024, 7, 1,0, 0), 'Pilot', '', ''],
-                    ['SCL_Imaging_Lab', 'backlog', 'Backlog', 'Chris', datetime(2024, 6, 1, 0, 0), '', '', ''],
-                    ['SCL_Imaging_Lab', 'tiffs', 'Medium Priority', 'Mary', 'Permanent', '', '', '']]
+        expected = [['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
+                     'Audit_Dates', 'Audit_Inventory', 'Audit_Required'],
+                    ['Hargrett', 'Access\\ms1234', 'Access/Mezzanine',  'Emmeline', 'Permanent', 'Redacted', '', '', '', ''],
+                    ['Hargrett', 'Access\\Kiosk', 'Access/Mezzanine', 'Emmeline', 'Permanent', '', '', '', '', ''],
+                    ['Hargrett', 'Oral history temp', 'Transfer', 'Steve', '6 months after creation', '', '', '', '', ''],
+                    ['MAGIL_GGP', 'Legislative docs', 'Transfer', 'Sarah', datetime(2024, 7, 1,0, 0), 'Pilot', '', '', '', ''],
+                    ['SCL_Imaging_Lab', 'backlog', 'Backlog', 'Chris', datetime(2024, 6, 1, 0, 0), '', '', '', '', ''],
+                    ['SCL_Imaging_Lab', 'tiffs', 'Medium Priority', 'Mary', 'Permanent', '', '', '', '', '']]
         self.assertEqual(result, expected, "Problem with test for usual")
 
 
