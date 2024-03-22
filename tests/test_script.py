@@ -6,7 +6,7 @@ from datetime import date
 from os import remove
 from os.path import exists, join
 from pandas import read_csv
-from subprocess import PIPE, run
+from subprocess import CalledProcessError, PIPE, run
 
 
 class MyTestCase(unittest.TestCase):
@@ -58,6 +58,20 @@ class MyTestCase(unittest.TestCase):
                     ['Top', 'T_2', 'Transfer', 'Tina', '1 week', 'nan', 'nan', 'Check date'],
                     ['mezz_one', 'mezz_one', 'Access/Mezzanine', 'Mike', 'Permanent', 'nan', 'nan', 'Correct']]
         self.assertEqual(report_rows, expected, 'Problem with test for audit report contents')
+
+    def test_error(self):
+        """Test for when the script argument is not correct and the script exits"""
+        script_path = join('..', 'hub_audit.py')
+
+        # Runs the script without the required argument inventory and tests that it exits.
+        with self.assertRaises(CalledProcessError):
+            run(f'python {script_path}', shell=True, check=True, stdout=PIPE)
+
+        # Runs the script again without the required argument inventory and tests it prints the correct error message.
+        output = run(f'python {script_path}', shell=True, stdout=PIPE)
+        error_msg = output.stdout.decode('utf-8')
+        expected = 'Missing required argument: inventory\r\n'
+        self.assertEqual(error_msg, expected, 'Problem with test for error message')
 
 
 if __name__ == '__main__':
