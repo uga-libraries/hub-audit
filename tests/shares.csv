@@ -1,0 +1,8 @@
+name,path,pattern,folders
+A,shares\\A,top,
+B,shares\\B,share,
+C,shares\\C,top,
+Extra,shares\\Extra,top,
+mezz_one,shares\\mezz_one,share,
+Second_Level,shares\\Second_Level,second,S_2|S_3
+Top,shares\\Top,top,
