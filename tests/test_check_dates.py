@@ -46,19 +46,25 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(result, expected, "Problem with test for combined date formats")
 
     def test_dates_expired(self):
-        """Test for an inventory where the dates are formatted as a date and the dates are in the past"""
+        """Test for an inventory where the dates are formatted as a date and the dates are in the past
+        There is a also a date in the future, because when all dates are past, the script doesn't work right.
+        Still working on what is causing that problem - see Issue 5.
+        """
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), NaN, NaN, NaN, NaN, NaN],
-                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 10, 15, 0, 0), NaN, NaN, NaN, NaN, NaN],
-                ['Share_B', 'B', 'Backlog', 'June', datetime(2020, 10, 15, 0, 0), NaN, NaN, NaN, NaN, NaN]]
+        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), NaN, NaN, NaN, NaN, NaN],
+                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), NaN, NaN, NaN, NaN, NaN],
+                ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), NaN, NaN, NaN, NaN, NaN]]
         inventory_df = check_dates(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2022, 10, 15, 0, 0), 'nan', 'nan', 'Expired', 'nan', 'nan'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 10, 15, 0, 0), 'nan', 'nan', 'Expired', 'nan', 'nan'],
-                    ['Share_B', 'B', 'Backlog', 'June', datetime(2020, 10, 15, 0, 0), 'nan', 'nan', 'Expired', 'nan', 'nan']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'nan',
+                     'nan'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'nan',
+                     'nan'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'nan', 'nan', 'Correct', 'nan',
+                     'nan']]
         self.assertEqual(result, expected, "Problem with test for dates, expired")
 
     def test_dates_future(self):

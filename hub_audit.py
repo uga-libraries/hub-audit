@@ -59,19 +59,16 @@ def check_dates(df):
     @return
     df (pandas dataframe): data from inventory with updated Audit_Dates column
     """
-
     # For the portion of the dataframe where the date is a day,
     # updates Audit_Result if the date is earlier than today.
-    df_date = df[df['Review_Date'].apply(type) == datetime.datetime].copy()
+    df_date = df[(df['Review_Date'].apply(type) == datetime.datetime) | (df['Review_Date'].apply(type) == pd._libs.tslibs.timestamps.Timestamp)].copy()
     today = datetime.datetime.today()
     df_date.loc[df_date['Review_Date'] < today, 'Audit_Dates'] = 'Expired'
-    # print("date", df_date.shape)
 
     # For the portion of the dataframe where the date is not a day (not datetime),
     # updates Audit_Result if it isn't 'permanent' (case insensitive).
-    df_nondate = df[df['Review_Date'].apply(type) != datetime.datetime].copy()
+    df_nondate = df[(df['Review_Date'].apply(type) != datetime.datetime) & (df['Review_Date'].apply(type) != pd._libs.tslibs.timestamps.Timestamp)].copy()
     df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Dates'] = 'Review'
-    # print("nondate", df_nondate.shape)
 
     # Recombines the dataframes with the updated Audit_Result column.
     df = pd.concat([df_date, df_nondate])
