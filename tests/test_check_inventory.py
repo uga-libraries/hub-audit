@@ -1,7 +1,7 @@
 """
 Tests for the function check_inventory(), which compares the inventory to the shares.
 
-For easier testing, the variables with the contents of shares.csv (usually imported by the script)
+For easier testing, the variables with the contents of test_shares.csv (usually imported by the script)
 and inventory_df (usually made by reading an Excel spreadsheet with read_inventory())
 are made within the test functions.
 """
