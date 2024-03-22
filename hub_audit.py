@@ -172,23 +172,19 @@ def check_required(df):
     return df
 
 
-def hub_size():
+def hub_size(shares_list):
     """Calculate the total size of all Hub shares in TB
 
     @param
-    None
+    shares_list (list): list of Hub share paths
 
     @return
     total (float): combined sizes of all Hub shares in TB
     """
 
-    # For testing, a list of shares to include, which are in this repo.
-    # For production, may import from a configuration file.
-    shares = [os.path.join('shares', 'A'), os.path.join('shares', 'B'), os.path.join('shares', 'C')]
-
     # Adds the size of each share to the total.
     total_bytes = 0
-    for share in shares:
+    for share in shares_list:
         for root, dirs, files in os.walk(share):
             for file in files:
                 file_path = os.path.join(root, file)
@@ -256,9 +252,12 @@ if __name__ == '__main__':
     # Reads the inventory, a multiple sheet Excel spreadsheet, into one pandas dataframe, with cleanup.
     inventory_df = read_inventory(inventory_path)
 
+    # Reads the share information into a dataframe.
+    shares_df = pd.read_csv(shares_path)
+
     # Prints statistics (number of rows in the inventory and TB in all shares) for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
-    size = hub_size()
+    size = hub_size(shares_df['path'].unique())
     print("Size of shares in TB:", size)
 
     # Checks for blank cells in required columns.
@@ -268,7 +267,6 @@ if __name__ == '__main__':
     inventory_df = check_dates(inventory_df)
 
     # Checks for mismatches between the inventory and Hub shares.
-    shares_df = pd.read_csv(shares_path)
     inventory_df = check_inventory(inventory_df, shares_df)
 
     # Saves the inventory to a CSV for additional manual review.
