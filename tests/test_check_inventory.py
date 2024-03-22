@@ -74,13 +74,14 @@ class MyTestCase(unittest.TestCase):
                     ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
                     ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan']]
         self.assertEqual(result, expected, "Problem with test for correct, top folders")
-    #
+
     def test_error_extra_file(self):
         """Test for when a share has a file at the top level of the share, instead of just folders"""
         # Makes variables for function input and run the function being tested.
         config_shares = [{'name': 'Extra', 'path': join('shares', 'Extra'), 'pattern': 'top', 'folders': []}]
         rows = [['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
-                ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN]]
+                ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN],
+                ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN]]
         inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
 
         # Tests if the resulting dataframe has the expected data.
@@ -88,6 +89,7 @@ class MyTestCase(unittest.TestCase):
         expected = [self.columns,
                     ['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
                     ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
+                    ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan'],
                     ['Extra', 'Text.txt', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory']]
         self.assertEqual(result, expected, "Problem with test for error, extra file")
 
