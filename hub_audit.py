@@ -1,39 +1,50 @@
 """
 Experiment into automating the majority of the analysis for the Digital Production Hub audit.
-Required argument: path to the Digital Production Hub Inventory (Excel spreadsheet)
+Required arguments: paths to the Digital Production Hub Inventory (Excel spreadsheet) and a CSV with share information.
 """
 import datetime
 import numpy as np
 import os
 import pandas as pd
 import sys
-from config import shares
 
 
-def check_argument(arg_list):
-    """Check if the required argument is present and a valid path
+def check_arguments(arg_list):
+    """Check if the required arguments are present and valid paths
 
     @param
     arg_list (list): the contents of sys.argv after the script is run
 
     @return
     inventory (string, None): string with the path to the inventory, or None if error
-    error (string, None): string with the error message, or None if no error
+    share_info (string, None): string with the path to the share information, or None if error
+    errors (list): list with error messages, which is empty if there are no errors
     """
 
-    # Verifies the required argument (inventory) is present and a valid path.
-    # If the number of arguments is incorrect, inventory_path is set to None.
-    # If there is no error, error is set to None.
+    # Variables for argument validation results.
+    inventory = None
+    share_info = None
+    errors = []
+
+    # Tests the arguments and updates the value of inventory or share_info if they are valid paths
+    # and the errors list with each error found.
     if len(arg_list) == 1:
-        return None, 'Missing required argument: inventory'
+        errors.append('Missing both required arguments, inventory and share information')
     elif len(arg_list) == 2:
-        inventory = arg_list[1]
-        if os.path.exists(inventory):
-            return inventory, None
+        errors.append('Missing one of the required arguments, inventory or share information')
+    elif len(arg_list) == 3:
+        if os.path.exists(arg_list[1]):
+            inventory = arg_list[1]
         else:
-            return None, f'Provided inventory "{inventory}" does not exist'
+            errors.append(f'Provided inventory "{arg_list[1]}" does not exist')
+        if os.path.exists(arg_list[2]):
+            share_info = arg_list[2]
+        else:
+            errors.append(f'Provided share information "{arg_list[2]}" does not exist')
     else:
-        return None, 'Too many arguments. Should just have one argument, inventory'
+        errors.append('Too many arguments. Should have two arguments, inventory and share information')
+
+    return inventory, share_info, errors
 
 
 def check_dates(df):
@@ -235,11 +246,12 @@ def read_inventory(path):
 
 if __name__ == '__main__':
 
-    # Path to the inventory (from the script argument).
-    # If the argument is missing or not a valid path, exits the script.
-    inventory_path, error = check_argument(sys.argv)
-    if error:
-        print(error)
+    # Path to the Hub inventory and shares information csv (from the script arguments).
+    # If either argument is missing or not a valid path, exits the script.
+    inventory_path, shares_path, error = check_argument(sys.argv)
+    if len(error_list) > 0:
+        for error in error_list:
+            print(error)
         sys.exit(1)
 
     # Reads the inventory, a multiple sheet Excel spreadsheet, into one pandas dataframe, with cleanup.
@@ -257,7 +269,8 @@ if __name__ == '__main__':
     inventory_df = check_dates(inventory_df)
 
     # Checks for mismatches between the inventory and Hub shares.
-    inventory_df = check_inventory(inventory_df, shares)
+    shares_df = pd.read_csv(shares_path)
+    inventory_df = check_inventory(inventory_df, shares_df)
 
     # Saves the inventory to a CSV for additional manual review.
     csv_path = os.path.join(os.path.dirname(inventory_path),
