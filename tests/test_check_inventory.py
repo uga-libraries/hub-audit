@@ -1,7 +1,7 @@
 """
 Tests for the function check_inventory(), which compares the inventory to the shares.
 
-For easier testing, the variables with the contents of test_shares.csv (usually imported by the script)
+For easier testing, the variables with the contents of test_shares.csv (usually made by reading a CSV)
 and inventory_df (usually made by reading an Excel spreadsheet with read_inventory())
 are made within the test functions.
 """
@@ -29,14 +29,15 @@ class MyTestCase(unittest.TestCase):
     def test_correct_second(self):
         """Test for a share where some second level folders are included and the share matches the inventory"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Second_Level', 'path': join('shares', 'Second_Level'), 'pattern': 'second',
-                          'folders': ['S_1', 'S_3']}]
-        rows = [['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Second_Level', join('shares', 'Second_Level'), 'second', 'S_1|S_3']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -51,9 +52,11 @@ class MyTestCase(unittest.TestCase):
     def test_correct_share(self):
         """Test for a share where the inventory is just the share name and the share matches the inventory"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'mezz_one', 'path': join('shares', 'mezz_one'), 'pattern': 'share', 'folders': []}]
-        rows = [['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['mezz_one', join('shares', 'mezz_one'), 'share', '']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -64,10 +67,12 @@ class MyTestCase(unittest.TestCase):
     def test_correct_top(self):
         """Test for a share where only top level folders are included and the share matches the inventory"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Top', 'path': join('shares', 'Top'), 'pattern': 'top', 'folders': []}]
-        rows = [['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -79,11 +84,13 @@ class MyTestCase(unittest.TestCase):
     def test_error_extra_file(self):
         """Test for when a share has a file at the top level of the share, instead of just folders"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Extra', 'path': join('shares', 'Extra'), 'pattern': 'top', 'folders': []}]
-        rows = [['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Extra', join('shares', 'Extra'), 'top', '']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -97,13 +104,15 @@ class MyTestCase(unittest.TestCase):
     def test_error_inventory_only(self):
         """Test for when folders are in the inventory but not the share"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Top', 'path': join('shares', 'Top'), 'pattern': 'top', 'folders': []}]
-        rows = [['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -118,10 +127,12 @@ class MyTestCase(unittest.TestCase):
     def test_error_inventory_share(self):
         """Test for when folders are missing from both the inventory and share"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Top', 'path': join('shares', 'Top'), 'pattern': 'top', 'folders': []}]
-        rows = [['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -134,11 +145,12 @@ class MyTestCase(unittest.TestCase):
     def test_error_share_only(self):
         """Test for when folders are in the share but not the inventory"""
         # Makes variables for function input and run the function being tested.
-        config_shares = [{'name': 'Second_Level', 'path': join('shares', 'Second_Level'), 'pattern': 'second',
-                         'folders': ['S_1', 'S_3']}]
-        rows = [['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]]
-        inventory_df = check_inventory(DataFrame(rows, columns=self.columns), config_shares)
+        df = DataFrame([['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                       columns=self.columns)
+        df_shares = DataFrame([['Second_Level', join('shares', 'Second_Level'), 'second', 'S_1|S_3']],
+                              columns=['name', 'path', 'pattern', 'folders'])
+        inventory_df = check_inventory(df, df_shares)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)

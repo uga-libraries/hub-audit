@@ -83,13 +83,12 @@ def check_dates(df):
     return df
 
 
-def check_inventory(df, share_list):
+def check_inventory(df, df_shares):
     """Find folders in the share but not the inventory or in the inventory but not the share
 
     @param
     df (pandas dataframe): data from the inventory after cleanup
-    shares (list): a list of dictionaries with data about each share: share name, path, inventory pattern,
-                   and a list of second-level folders to include, which is empty if none are included
+    df_shares (pandas dataframe): data from the shares information csv
 
     @return
     df (pandas dataframe): data from inventory updated with inventory match error
@@ -99,29 +98,29 @@ def check_inventory(df, share_list):
 
     # Makes an inventory of the contents of every share.
     share_inventory = {'Share': [], 'Folder': []}
-    for share in share_list:
-        share_name = share['name']
-
+    for share in df_shares.itertuples():
+        
         # Shares where the inventory just has the share name.
-        if share['pattern'] == 'share':
-            share_inventory['Share'].append(share_name)
-            share_inventory['Folder'].append(share_name)
+        if share.pattern == 'share':
+            share_inventory['Share'].append(share.name)
+            share_inventory['Folder'].append(share.name)
 
         # Shares where the inventory is just the top level folders.
-        elif share['pattern'] == 'top':
-            for item in os.listdir(share['path']):
-                share_inventory['Share'].append(share_name)
+        elif share.pattern == 'top':
+            for item in os.listdir(share.path):
+                share_inventory['Share'].append(share.name)
                 share_inventory['Folder'].append(item)
 
-        # Shares where the inventory includes second level folders for any top level folder in the folders list.
-        elif share['pattern'] == 'second':
-            for item in os.listdir(share['path']):
-                if item in share['folders']:
-                    for second_item in os.listdir(os.path.join(share['path'], item)):
-                        share_inventory['Share'].append(share_name)
+        # Shares where the inventory includes second level folders for any top level folder in the folders list,
+        # which is a pipe-separated string in df_shares.
+        elif share.pattern == 'second':
+            for item in os.listdir(share.path):
+                if item in share.folders.split('|'):
+                    for second_item in os.listdir(os.path.join(share.path, item)):
+                        share_inventory['Share'].append(share.name)
                         share_inventory['Folder'].append(f'{item}\\{second_item}')
                 else:
-                    share_inventory['Share'].append(share_name)
+                    share_inventory['Share'].append(share.name)
                     share_inventory['Folder'].append(item)
 
         # Catch shares with unexpected patterns.
@@ -248,7 +247,7 @@ if __name__ == '__main__':
 
     # Path to the Hub inventory and shares information csv (from the script arguments).
     # If either argument is missing or not a valid path, exits the script.
-    inventory_path, shares_path, error = check_argument(sys.argv)
+    inventory_path, shares_path, error_list = check_arguments(sys.argv)
     if len(error_list) > 0:
         for error in error_list:
             print(error)
