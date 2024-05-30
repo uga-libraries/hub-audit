@@ -112,13 +112,19 @@ def check_inventory(df, df_shares):
         # which is a pipe-separated string in df_shares.
         elif share.pattern == 'second':
             for item in os.listdir(share.path):
-                if item in share.folders.split('|'):
-                    for second_item in os.listdir(os.path.join(share.path, item)):
+                for second_item in os.listdir(os.path.join(share.path, item)):
+                    if item in share.folders.split('|'):
+                        # In born-digital folders, go to the third (collection) level in backlogged and closed:
+                        if item.lower() == 'born-digital' and second_item in ('backlogged', 'closed'):
+                            for third_item in os.listdir(os.path.join(share.path, item, second_item)):
+                                share_inventory['Share'].append(share.name)
+                                share_inventory['Folder'].append(f'{item}\\{second_item}\\{third_item}')
+                        else:
+                            share_inventory['Share'].append(share.name)
+                            share_inventory['Folder'].append(f'{item}\\{second_item}')
+                    else:
                         share_inventory['Share'].append(share.name)
-                        share_inventory['Folder'].append(f'{item}\\{second_item}')
-                else:
-                    share_inventory['Share'].append(share.name)
-                    share_inventory['Folder'].append(item)
+                        share_inventory['Folder'].append(item)
 
         # Catch shares with unexpected patterns.
         else:
