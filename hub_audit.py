@@ -175,30 +175,6 @@ def check_required(df):
     return df
 
 
-def hub_size(shares_list):
-    """Calculate the total size of all Hub shares in TB
-
-    @param
-    shares_list (list): list of Hub share paths
-
-    @return
-    total (float): combined sizes of all Hub shares in TB
-    """
-
-    # Adds the size of each share to the total.
-    total_bytes = 0
-    for share in shares_list:
-        for root, dirs, files in os.walk(share):
-            for file in files:
-                file_path = os.path.join(root, file)
-                total_bytes += os.path.getsize(file_path)
-
-    # For testing, converts the size to MB and round to 2 decimals.
-    # In production, plan to convert to a TB round to a whole number.
-    total_mb = round(total_bytes/1000000, 2)
-    return total_mb
-
-
 def read_inventory(path):
     """Read inventory into dataframe, clean up, and add an Audit_Result column
 
@@ -258,10 +234,8 @@ if __name__ == '__main__':
     # Reads the share information into a dataframe.
     shares_df = pd.read_csv(shares_path)
 
-    # Prints statistics (number of rows in the inventory and TB in all shares) for the audit results spreadsheet.
+    # Prints the number of rows in the inventory for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
-    size = hub_size(shares_df['path'].unique())
-    print("Size of shares in TB:", size)
 
     # Checks for blank cells in required columns.
     inventory_df = check_required(inventory_df)
