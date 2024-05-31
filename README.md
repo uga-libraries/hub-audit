@@ -21,6 +21,8 @@ Make a CSV with information about every share included in the audit, with the fo
 - pattern
 - folders
 
+Name must match how the share is named within the Digital Production Hub Inventory.
+
 Pattern is how the inventory is constructed. Current patterns:
 - second: include the second level of folders, formatted top\second, for any top folder in the folders column
 - share: the folder name in the inventory is the same as the share
