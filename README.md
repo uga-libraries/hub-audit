@@ -54,8 +54,13 @@ The input (inventories, share csvs, and share folders) is either in the repo or 
    and will print the number of lines in the inventory and size of the shares for the audit summary report.
    
 4. Review the CSV created by the script and make any needed edits. 
-   Check for dates that need review (date to review is a time frame instead of a specific date) 
-   and inventory/share mismatches due to variations in how the folder was typed.
+   - Check for dates that need review (date to review is a time frame instead of a specific date) 
+   - Check for inventory/share mismatches due to variations in how the folder was typed
+   - Remove Thumbs.db and .DS_Store
+   - Remove files in top level of directory structure related to Hub maintenance
+   - Remove all files at the second level of directory structure (filter for "." in Folder)
+   - Check for folders missing because the top and second level of folders was included in the inventory
+   - Check for folders missing because the third level of folders was included in the inventory
    
 5. Use the results to request changes from departments and to make the summary report.
 
