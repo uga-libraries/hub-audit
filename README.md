@@ -44,14 +44,17 @@ The input (inventories, share csvs, and share folders) is either in the repo or 
 
 ## Workflow
 
+This is the portion of the workflow directly related to the script.
+See the procedure documentation in the Audit Reports folder on DCWG Teams for the entire workflow.
+
 1. Download the Digital Production Hub Inventory spreadsheet and delete the "Hub Inventory Examples" tab.
    
 
-2. Make the share CSV, if one does not already exist.
+2. Make or update the share CSV. (DCWG Teams in Audit Reports folder) 
    
 3. Run the script. 
    It will make a CSV in the same folder as the Hub Inventory spreadsheet which compares the shares to the inventory 
-   and will print the number of lines in the inventory and size of the shares for the audit summary report.
+   and will print the number of lines in the inventory for the audit summary report.
    
 4. Review the CSV created by the script and make any needed edits. 
    - Check for dates that need review (date to review is a time frame instead of a specific date) 
