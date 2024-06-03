@@ -9,7 +9,7 @@ to the inventory and identifies information that needs to be updated.
 
 ### Dependencies
 
-TBD
+Python libraries pandas and numpy (see requirements.txt)
 
 ### Installation
 
