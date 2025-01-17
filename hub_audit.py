@@ -134,7 +134,7 @@ def check_inventory(df, df_shares):
                                 share_inventory['Folder'].append(item)
         # Catch shares with unexpected patterns.
         else:
-            print(f'Error: config has an unexpected pattern')
+            print('Error: config has an unexpected pattern', share.pattern)
 
     # Converts the share inventory to a dataframe and aligns with the original inventory dataframe.
     # Both the share and folder name need to be the same for a row to match in both dataframes.
