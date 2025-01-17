@@ -140,6 +140,9 @@ def check_inventory(df, df_shares):
     share_df = pd.DataFrame.from_dict(share_inventory)
     df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
 
+    # TODO: temp fix for error until I find the source
+    df = df.drop_duplicates()
+
     # Updates the "Audit_Result" column for rows that are not in both shares.
     df.loc[df['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
     df.loc[df['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
