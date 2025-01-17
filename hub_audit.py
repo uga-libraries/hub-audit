@@ -85,7 +85,7 @@ def check_inventory(df, df_shares):
 
     @param
     df (pandas dataframe): data from the inventory after cleanup
-    df_shares (pandas dataframe): data from the shares information csv
+    df_shares (pandas dataframe): contents of all shares
 
     @return
     df (pandas dataframe): data from inventory updated with inventory match error
@@ -96,8 +96,7 @@ def check_inventory(df, df_shares):
     # Aligns with the original inventory dataframe with the shares dataframe.
     # Both the share and folder name need to be the same for a row to match in both dataframes.
     # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
-    share_df = pd.DataFrame.from_dict(share_inventory)
-    df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
+    df = df.merge(df_shares, on=['Share', 'Folder'], how='outer', indicator=True)
 
     # TODO: temp fix for error until I find the source
     df = df.drop_duplicates()
@@ -274,7 +273,7 @@ if __name__ == '__main__':
     inventory_df = check_dates(inventory_df)
 
     # Checks for mismatches between the inventory and Hub shares.
-    inventory_df = check_inventory(inventory_df, shares_info_df)
+    inventory_df = check_inventory(inventory_df, shares_df)
 
     # Saves the inventory to a CSV for additional manual review.
     csv_path = os.path.join(os.path.dirname(inventory_path),
