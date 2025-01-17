@@ -68,7 +68,9 @@ class MyTestCase(unittest.TestCase):
         """Test for a share where only top level folders are included and the share matches the inventory"""
         # Makes variables for function input and run the function being tested.
         df = DataFrame([['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
+                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
                        columns=self.columns)
         df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
                               columns=['name', 'path', 'pattern', 'folders'])
@@ -77,8 +79,10 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
+                    ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
                     ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
+                    ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
         self.assertEqual(result, expected, "Problem with test for correct, top folders")
 
     def test_error_extra_file(self):
@@ -108,6 +112,8 @@ class MyTestCase(unittest.TestCase):
                         ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
                         ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
                         ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
+                        ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
                         ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
                        columns=self.columns)
         df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
@@ -117,11 +123,13 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
+                    ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
                     ['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
                     ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
                     ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
                     ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
+                    ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],]
         self.assertEqual(result, expected, "Problem with test for error, inventory only")
 
     def test_error_inventory_share(self):
@@ -137,9 +145,11 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
+                    ['Top', 'Include.txt', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
                     ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
                     ['Top', 'T_1', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
+                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
+                    ['Top', 'T_Hub', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],]
         self.assertEqual(result, expected, "Problem with test for error, inventory and share")
 
     def test_error_share_only(self):
