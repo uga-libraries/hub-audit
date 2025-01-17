@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
 
         # Verifies the script printing the correct stats.
         printed = result.stdout.decode('utf-8')
-        expected = 'Rows in the inventory (after cleanup): 17\r\n'
+        expected = 'Rows in the inventory (after cleanup): 19\r\n'
         self.assertEqual(printed, expected, 'Problem with test for printing stats')
 
         # Verifies the audit report was made.
@@ -53,8 +53,10 @@ class MyTestCase(unittest.TestCase):
                     ['Second_Level', 'S_2\\S_2b', 'Backlog', 'Sam', '2125-04-01 00:00:00', 'nan', 'nan', 'Correct', 'Correct', 'Correct'],
                     ['Second_Level', 'S_3\\S_3a', 'Backlog', 'Sam', '2125-04-01 00:00:00', 'nan', 'nan', 'Correct', 'Correct', 'Correct'],
                     ['Second_Level', 'S_3\\S_3b', 'Backlog', 'Sam', '2125-04-01 00:00:00', 'nan', 'nan', 'Correct', 'Correct', 'Correct'],
+                    ['Top', 'Include.txt', 'Transfer', 'Tina', '1 week', 'nan', 'nan', 'Review', 'Correct', 'Correct'],
                     ['Top', 'T_1', 'Transfer', 'Tim', '2 months', 'nan', 'nan', 'Review', 'Correct', 'Correct'],
                     ['Top', 'T_2', 'Transfer', 'Tina', '1 week', 'nan', 'nan', 'Review', 'Correct', 'Correct'],
+                    ['Top', 'T_Hub', 'Transfer', 'Tina', '1 week', 'nan', 'nan', 'Review', 'Correct', 'Correct'],
                     ['mezz_one', 'mezz_one', 'Access/Mezzanine', 'Mike', 'Permanent', 'nan', 'nan', 'Correct', 'Correct', 'Correct']]
         self.assertEqual(report_rows, expected, 'Problem with test for audit report contents')
 
