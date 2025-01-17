@@ -244,7 +244,7 @@ if __name__ == '__main__':
     inventory_df = read_inventory(inventory_path)
 
     # Reads the share information into a dataframe.
-    shares_df = pd.read_csv(shares_info_path)
+    shares_info_df = pd.read_csv(shares_info_path)
 
     # Prints the number of rows in the inventory for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
@@ -256,7 +256,7 @@ if __name__ == '__main__':
     inventory_df = check_dates(inventory_df)
 
     # Checks for mismatches between the inventory and Hub shares.
-    inventory_df = check_inventory(inventory_df, shares_df)
+    inventory_df = check_inventory(inventory_df, shares_info_df)
 
     # Saves the inventory to a CSV for additional manual review.
     csv_path = os.path.join(os.path.dirname(inventory_path),
