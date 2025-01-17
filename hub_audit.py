@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
     # Path to the Hub inventory and shares information csv (from the script arguments).
     # If either argument is missing or not a valid path, exits the script.
-    inventory_path, shares_path, error_list = check_arguments(sys.argv)
+    inventory_path, shares_info_path, error_list = check_arguments(sys.argv)
     if len(error_list) > 0:
         for error in error_list:
             print(error)
@@ -244,7 +244,7 @@ if __name__ == '__main__':
     inventory_df = read_inventory(inventory_path)
 
     # Reads the share information into a dataframe.
-    shares_df = pd.read_csv(shares_path)
+    shares_df = pd.read_csv(shares_info_path)
 
     # Prints the number of rows in the inventory for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
