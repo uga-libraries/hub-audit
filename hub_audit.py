@@ -96,7 +96,7 @@ def check_inventory(df, df_shares):
     # Makes an inventory of the contents of every share.
     share_inventory = {'Share': [], 'Folder': []}
     for share in df_shares.itertuples():
-        
+
         # Shares where the inventory just has the share name.
         if share.pattern == 'share':
             share_inventory['Share'].append(share.name)
@@ -184,6 +184,64 @@ def check_required(df):
     return df
 
 
+def make_shares_inventory(df_info):
+    """Make a dataframe with the contents of all shares, to the level of detail specified in df_info
+
+    @param
+    df_info (pandas dataframe): data from the shares information csv
+
+    @return
+    df (pandas dataframe): contents of all shares
+    """
+
+    # Makes an inventory of the contents of every share.
+    share_inventory = {'Share': [], 'Folder': []}
+    for share in df_info.itertuples():
+
+        # Shares where the inventory just has the share name.
+        if share.pattern == 'share':
+            share_inventory['Share'].append(share.name)
+            share_inventory['Folder'].append(share.name)
+
+        # Shares where the inventory is just the top level folders.
+        # Files are included unless they are .DS_Store or Hub documentation.
+        elif share.pattern == 'top':
+            for item in os.listdir(share.path):
+                if os.path.isdir(os.path.join(share.path, item)) or (item != '.DS_Store' and 'Hub' not in item):
+                    share_inventory['Share'].append(share.name)
+                    share_inventory['Folder'].append(item)
+
+        # Shares where the inventory includes second level folders for any top level folder in the folders list,
+        # which is a pipe-separated string in df_shares.
+        # Files are not included.
+        elif share.pattern == 'second':
+            for item in os.listdir(share.path):
+                # Continue navigation if item is a directory and stop if it is a file.
+                if os.path.isdir(os.path.join(share.path, item)):
+                    for second_item in os.listdir(os.path.join(share.path, item)):
+                        if os.path.isdir(os.path.join(share.path, item, second_item)):
+                            if item in share.folders.split('|'):
+                                # In born-digital folders, go to the third (collection) level in backlogged and closed:
+                                if item.lower() == 'born-digital' and second_item in ('backlogged', 'closed'):
+                                    for third_item in os.listdir(os.path.join(share.path, item, second_item)):
+                                        if os.path.isdir(os.path.join(share.path, item, second_item, third_item)):
+                                            share_inventory['Share'].append(share.name)
+                                            share_inventory['Folder'].append(f'{item}\\{second_item}\\{third_item}')
+                                else:
+                                    share_inventory['Share'].append(share.name)
+                                    share_inventory['Folder'].append(f'{item}\\{second_item}')
+                            else:
+                                share_inventory['Share'].append(share.name)
+                                share_inventory['Folder'].append(item)
+        # Catch shares with unexpected patterns.
+        else:
+            print('Error: config has an unexpected pattern', share.pattern)
+
+    # Converts the share inventory to a dataframe.
+    df = pd.DataFrame.from_dict(share_inventory)
+    return df
+
+    
 def read_inventory(path):
     """Read inventory into dataframe, clean up, and add an Audit_Result column
 
