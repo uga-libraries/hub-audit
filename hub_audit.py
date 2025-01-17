@@ -205,7 +205,9 @@ def read_inventory(path):
 
     # Removes the rows of content that has been deleted
     # by keeping rows without information in the deleted date column.
+    # Then it removes that column, which only has blanks remaining.
     df = df[df['Deleted (date) (optional)'].isnull()]
+    df = df.drop(['Deleted (date) (optional)'], axis=1)
 
     # Removes blank rows.
     df = df.dropna(how='all')
@@ -216,8 +218,7 @@ def read_inventory(path):
                     'Use Policy Category (required)': 'Use',
                     'Person Responsible (required)': 'Responsible',
                     'Date to review for deletion (required)': 'Review_Date',
-                    'Additional information (optional)': 'Notes',
-                    'Deleted (date) (optional)': 'Deleted_Date'}, axis=1)
+                    'Additional information (optional)': 'Notes'}, axis=1)
 
     # Adds new columns for recording errors found during the audit, one for each error type.
     df['Audit_Dates'] = np.nan
