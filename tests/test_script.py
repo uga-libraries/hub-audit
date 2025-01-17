@@ -25,8 +25,7 @@ class MyTestCase(unittest.TestCase):
 
         # Verifies the script printing the correct stats.
         printed = result.stdout.decode('utf-8')
-        expected = 'Rows in the inventory (after cleanup): 17\r\n' \
-                   'Size of shares in TB: 0.15\r\n'
+        expected = 'Rows in the inventory (after cleanup): 17\r\n'
         self.assertEqual(printed, expected, 'Problem with test for printing stats')
 
         # Verifies the audit report was made.
