@@ -103,10 +103,12 @@ def check_inventory(df, df_shares):
             share_inventory['Folder'].append(share.name)
 
         # Shares where the inventory is just the top level folders.
+        # Files are included unless they are .DS_Store or Hub documentation.
         elif share.pattern == 'top':
             for item in os.listdir(share.path):
-                share_inventory['Share'].append(share.name)
-                share_inventory['Folder'].append(item)
+                if os.path.isdir(os.path.join(share.path, item)) or (item != '.DS_Store' and 'Hub' not in item):
+                    share_inventory['Share'].append(share.name)
+                    share_inventory['Folder'].append(item)
 
         # Shares where the inventory includes second level folders for any top level folder in the folders list,
         # which is a pipe-separated string in df_shares.
