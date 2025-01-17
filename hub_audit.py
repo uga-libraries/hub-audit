@@ -241,7 +241,7 @@ def make_shares_inventory(df_info):
     df = pd.DataFrame.from_dict(share_inventory)
     return df
 
-    
+
 def read_inventory(path):
     """Read inventory into dataframe, clean up, and add an Audit_Result column
 
@@ -303,6 +303,9 @@ if __name__ == '__main__':
 
     # Reads the share information into a dataframe.
     shares_info_df = pd.read_csv(shares_info_path)
+
+    # Makes a dataframe with the folders in the shares, based on patterns in shares_info_df.
+    shares_df = make_shares_inventory(shares_info_df)
 
     # Prints the number of rows in the inventory for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
