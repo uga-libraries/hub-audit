@@ -103,42 +103,47 @@ def check_inventory(df, df_shares):
             share_inventory['Folder'].append(share.name)
 
         # Shares where the inventory is just the top level folders.
+        # Files are included unless they are .DS_Store or Hub documentation.
         elif share.pattern == 'top':
             for item in os.listdir(share.path):
-                share_inventory['Share'].append(share.name)
-                share_inventory['Folder'].append(item)
+                if os.path.isdir(os.path.join(share.path, item)) or (item != '.DS_Store' and 'Hub' not in item):
+                    share_inventory['Share'].append(share.name)
+                    share_inventory['Folder'].append(item)
 
         # Shares where the inventory includes second level folders for any top level folder in the folders list,
         # which is a pipe-separated string in df_shares.
+        # Files are not included.
         elif share.pattern == 'second':
             for item in os.listdir(share.path):
                 # Continue navigation if item is a directory and stop if it is a file.
                 if os.path.isdir(os.path.join(share.path, item)):
                     for second_item in os.listdir(os.path.join(share.path, item)):
-                        if item in share.folders.split('|'):
-                            # In born-digital folders, go to the third (collection) level in backlogged and closed:
-                            if item.lower() == 'born-digital' and second_item in ('backlogged', 'closed'):
-                                for third_item in os.listdir(os.path.join(share.path, item, second_item)):
+                        if os.path.isdir(os.path.join(share.path, item, second_item)):
+                            if item in share.folders.split('|'):
+                                # In born-digital folders, go to the third (collection) level in backlogged and closed:
+                                if item.lower() == 'born-digital' and second_item in ('backlogged', 'closed'):
+                                    for third_item in os.listdir(os.path.join(share.path, item, second_item)):
+                                        if os.path.isdir(os.path.join(share.path, item, second_item, third_item)):
+                                            share_inventory['Share'].append(share.name)
+                                            share_inventory['Folder'].append(f'{item}\\{second_item}\\{third_item}')
+                                else:
                                     share_inventory['Share'].append(share.name)
-                                    share_inventory['Folder'].append(f'{item}\\{second_item}\\{third_item}')
+                                    share_inventory['Folder'].append(f'{item}\\{second_item}')
                             else:
                                 share_inventory['Share'].append(share.name)
-                                share_inventory['Folder'].append(f'{item}\\{second_item}')
-                        else:
-                            share_inventory['Share'].append(share.name)
-                            share_inventory['Folder'].append(item)
-                else:
-                    share_inventory['Share'].append(share.name)
-                    share_inventory['Folder'].append(item)
+                                share_inventory['Folder'].append(item)
         # Catch shares with unexpected patterns.
         else:
-            print(f'Error: config has an unexpected pattern')
+            print('Error: config has an unexpected pattern', share.pattern)
 
     # Converts the share inventory to a dataframe and aligns with the original inventory dataframe.
     # Both the share and folder name need to be the same for a row to match in both dataframes.
     # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
     share_df = pd.DataFrame.from_dict(share_inventory)
     df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
+
+    # TODO: temp fix for error until I find the source
+    df = df.drop_duplicates()
 
     # Updates the "Audit_Result" column for rows that are not in both shares.
     df.loc[df['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
