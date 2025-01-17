@@ -196,8 +196,10 @@ def read_inventory(path):
     df (pandas dataframe): data from the inventory after cleanup
     """
 
-    # Reads every sheet in the Excel spreadsheet into a single dataframe.
-    df = pd.concat(pd.read_excel(path, sheet_name=None), ignore_index=True)
+    # Reads every sheet in the Excel spreadsheet, except for "Examples", into a single dataframe.
+    sheet_dict = pd.read_excel(path, sheet_name=None)
+    del sheet_dict['Examples']
+    df = pd.concat(sheet_dict, ignore_index=True)
 
     # Removes the rows that describe each column
     # by keeping all rows except ones with the description in the first column.
