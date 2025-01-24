@@ -26,6 +26,27 @@ class MyTestCase(unittest.TestCase):
                     ['b', 'b']]
         self.assertEqual(result, expected, "Problem with test for share")
 
+    def test_top(self):
+        """Test for the 'top' pattern"""
+        # Makes variable for function input and run the function being tested.
+        shares_info_df = DataFrame([['a', 'make_inv\\top\\a', 'top', NaN],
+                                    ['b', 'make_inv\\top\\b', 'top', NaN],
+                                    ['c', 'make_inv\\top\\c', 'top', NaN],
+                                    ['d', 'make_inv\\top\\d', 'top', NaN]],
+                                   columns=['name', 'path', 'pattern', 'folders'])
+        shares_df = make_shares_inventory(shares_info_df)
+
+        # Tests if the resulting dataframe has the expected data.
+        result = df_to_list(shares_df)
+        expected = [['Share', 'Folder'],
+                    ['a', 'folder_a1'],
+                    ['a', 'folder_a2'],
+                    ['b', 'folder_b'],
+                    ['c', 'folder_c'],
+                    ['d', 'File.txt'],
+                    ['d', 'folder_d']]
+        self.assertEqual(result, expected, "Problem with test for top")
+
     def test_unexpected(self):
         """Test for an unexpected pattern (error)"""
         # Makes variable for function input and run the function being tested.
@@ -36,7 +57,7 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data (empty).
         result = df_to_list(shares_df)
         expected = [['Share', 'Folder']]
-        self.assertEqual(result, expected, "Problem with test for share")
+        self.assertEqual(result, expected, "Problem with test for unexpected")
 
 
 if __name__ == '__main__':
