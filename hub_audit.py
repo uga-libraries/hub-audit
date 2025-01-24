@@ -193,7 +193,9 @@ def make_shares_inventory(df_info):
             print('Error: config has an unexpected pattern', share.pattern)
 
     # Converts the share inventory to a dataframe.
+    # Removes duplicates caused by the "second" pattern, for any folder not in the folders list.
     df_shares = pd.DataFrame.from_dict(share_inventory)
+    df_shares = df_shares.drop_duplicates()
     return df_shares
 
 

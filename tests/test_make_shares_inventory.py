@@ -26,15 +26,12 @@ class MyTestCase(unittest.TestCase):
         result = df_to_list(shares_df)
         expected = [['Share', 'Folder'],
                     ['a', 'folder_a'],
-                    ['a', 'folder_a'],
-                    ['b', 'folder_b'],
                     ['b', 'folder_b'],
                     ['c', 'born-digital\\backlogged\\folder_c1'],
                     ['c', 'born-digital\\backlogged\\folder_c2'],
                     ['d', 'born-digital\\closed\\folder_d1'],
                     ['e', 'folder_2\\folder_e1'],
                     ['e', 'folder_2\\folder_e2'],
-                    ['e', 'folder_3'],
                     ['e', 'folder_3'],
                     ['e', 'folder_e\\folder_e1'],
                     ['e', 'folder_e\\folder_e2']]
