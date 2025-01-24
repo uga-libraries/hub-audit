@@ -237,9 +237,10 @@ def read_inventory(path):
                     'Additional information (optional)': 'Notes'}, axis=1)
 
     # Adds new columns for recording errors found during the audit, one for each error type.
-    df_inventory['Audit_Dates'] = np.nan
-    df_inventory['Audit_Inventory'] = np.nan
-    df_inventory['Audit_Required'] = np.nan
+    # Initial values are TBD, so they can be updated with the results later without a dtype FutureWarning
+    df_inventory['Audit_Dates'] = 'TBD'
+    df_inventory['Audit_Inventory'] = 'TBD'
+    df_inventory['Audit_Required'] = 'TBD'
 
     return df_inventory
 
