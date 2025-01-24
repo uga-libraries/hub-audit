@@ -11,6 +11,35 @@ from pandas import DataFrame
 
 class MyTestCase(unittest.TestCase):
 
+    def test_second(self):
+        """Test for the 'second' pattern"""
+        # Makes variable for function input and run the function being tested.
+        shares_info_df = DataFrame([['a', 'make_inv\\second\\a', 'second', ''],
+                                    ['b', 'make_inv\\second\\b', 'second', ''],
+                                    ['c', 'make_inv\\second\\c', 'second', 'born-digital'],
+                                    ['d', 'make_inv\\second\\d', 'second', 'born-digital'],
+                                    ['e', 'make_inv\\second\\e', 'second', 'folder_2|folder_e']],
+                                   columns=['name', 'path', 'pattern', 'folders'])
+        shares_df = make_shares_inventory(shares_info_df)
+
+        # Tests if the resulting dataframe has the expected data.
+        result = df_to_list(shares_df)
+        expected = [['Share', 'Folder'],
+                    ['a', 'folder_a'],
+                    ['a', 'folder_a'],
+                    ['b', 'folder_b'],
+                    ['b', 'folder_b'],
+                    ['c', 'born-digital\\backlogged\\folder_c1'],
+                    ['c', 'born-digital\\backlogged\\folder_c2'],
+                    ['d', 'born-digital\\closed\\folder_d1'],
+                    ['e', 'folder_2\\folder_e1'],
+                    ['e', 'folder_2\\folder_e2'],
+                    ['e', 'folder_3'],
+                    ['e', 'folder_3'],
+                    ['e', 'folder_e\\folder_e1'],
+                    ['e', 'folder_e\\folder_e2']]
+        self.assertEqual(result, expected, "Problem with test for second")
+
     def test_share(self):
         """Test for the 'share' pattern"""
         # Makes variable for function input and run the function being tested.
