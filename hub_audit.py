@@ -47,56 +47,113 @@ def check_arguments(arg_list):
     return inventory, share_info, errors
 
 
-def check_dates(df):
+def check_dates(df_inventory):
     """Find dates to review for deletion that are expired or need manual review
 
     A date needs manual review if it is text (e.g., 6 months) instead of a specific day,
     but not if it is "Permanent" or "permanent".
 
     @param
-    df (pandas dataframe): data from the inventory
+    df_inventory (pandas dataframe): data from the inventory
 
     @return
-    df (pandas dataframe): data from inventory with updated Audit_Dates column
+    df_inventory (pandas dataframe): data from inventory with updated Audit_Dates column
     """
     # For the portion of the dataframe where the date is a day,
     # updates Audit_Result if the date is earlier than today.
-    df_date = df[(df['Review_Date'].apply(type) == datetime.datetime) | (df['Review_Date'].apply(type) == pd._libs.tslibs.timestamps.Timestamp)].copy()
+    df_date = df_inventory[(df_inventory['Review_Date'].apply(type) == datetime.datetime) | (df_inventory['Review_Date'].apply(type) == pd._libs.tslibs.timestamps.Timestamp)].copy()
     today = datetime.datetime.today()
     df_date.loc[df_date['Review_Date'] < today, 'Audit_Dates'] = 'Expired'
 
     # For the portion of the dataframe where the date is not a day (not datetime),
-    # updates Audit_Result if it isn't 'permanent' (case insensitive).
-    df_nondate = df[(df['Review_Date'].apply(type) != datetime.datetime) & (df['Review_Date'].apply(type) != pd._libs.tslibs.timestamps.Timestamp)].copy()
+    # updates Audit_Result if it isn't 'permanent' (case-insensitive).
+    df_nondate = df_inventory[(df_inventory['Review_Date'].apply(type) != datetime.datetime) & (df_inventory['Review_Date'].apply(type) != pd._libs.tslibs.timestamps.Timestamp)].copy()
     df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Dates'] = 'Review'
 
     # Recombines the dataframes with the updated Audit_Result column.
-    df = pd.concat([df_date, df_nondate])
-    df = df.sort_values(['Share', 'Folder'])
+    df_inventory = pd.concat([df_date, df_nondate])
+    df_inventory = df_inventory.sort_values(['Share', 'Folder'])
 
     # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df['Audit_Dates'] = df['Audit_Dates'].fillna('Correct')
+    df_inventory['Audit_Dates'] = df_inventory['Audit_Dates'].fillna('Correct')
 
-    return df
+    return df_inventory
 
 
-def check_inventory(df, df_shares):
+def check_inventory(df_inventory, df_shares):
     """Find folders in the share but not the inventory or in the inventory but not the share
 
     @param
-    df (pandas dataframe): data from the inventory after cleanup
-    df_shares (pandas dataframe): data from the shares information csv
+    df_inventory (pandas dataframe): data from the inventory after cleanup
+    df_shares (pandas dataframe): contents of all shares
 
     @return
-    df (pandas dataframe): data from inventory updated with inventory match error
+    df_inventory (pandas dataframe): data from inventory updated with inventory match error
     Audit_Inventory column is updated for folders that are not in the share
     Folders are added to the dataframe if they are in the share but not the inventory
     """
 
+    # Aligns with the original inventory dataframe with the shares dataframe.
+    # Both the share and folder name need to be the same for a row to match in both dataframes.
+    # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
+    df_inventory = df_inventory.merge(df_shares, on=['Share', 'Folder'], how='outer', indicator=True)
+
+    # TODO: temp fix for error until I find the source
+    df_inventory = df_inventory.drop_duplicates()
+
+    # Updates the "Audit_Result" column for rows that are not in both shares.
+    df_inventory.loc[df_inventory['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
+    df_inventory.loc[df_inventory['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
+
+    # Updates the value of any cells that are still blank (have no errors) with "Correct".
+    df_inventory['Audit_Inventory'] = df_inventory['Audit_Inventory'].fillna('Correct')
+
+    # Cleans up and returns the dataframe.
+    # The temporary column '_merge' is removed and the rows are sorted.
+    df_inventory = df_inventory.drop(['_merge'], axis=1)
+    df_inventory = df_inventory.sort_values(['Share', 'Folder'])
+
+    return df_inventory
+
+
+def check_required(df_inventory):
+    """Find blank cells in required columns
+
+    @param
+    df_inventory (pandas dataframe): data from the inventory after cleanup
+
+    @return
+    df_inventory (pandas dataframe): data from inventory with updated Audit_Required column
+    """
+
+    # List of required columns, after being renamed by the script.
+    required = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date']
+
+    # Find the blank cells in each of the required columns
+    # and adds an error to the Audit_Required column.
+    for column_name in required:
+        df_inventory.loc[pd.isna(df_inventory[column_name]), 'Audit_Required'] = 'Missing'
+
+    # Updates the value of any cells that are still blank (have no errors) with "Correct".
+    df_inventory['Audit_Required'] = df_inventory['Audit_Required'].fillna('Correct')
+
+    return df_inventory
+
+
+def make_shares_inventory(df_info):
+    """Make a dataframe with the contents of all shares, to the level of detail specified in df_info
+
+    @param
+    df_info (pandas dataframe): data from the shares information csv
+
+    @return
+    df_shares (pandas dataframe): contents of all shares
+    """
+
     # Makes an inventory of the contents of every share.
     share_inventory = {'Share': [], 'Folder': []}
-    for share in df_shares.itertuples():
-        
+    for share in df_info.itertuples():
+
         # Shares where the inventory just has the share name.
         if share.pattern == 'share':
             share_inventory['Share'].append(share.name)
@@ -136,52 +193,9 @@ def check_inventory(df, df_shares):
         else:
             print('Error: config has an unexpected pattern', share.pattern)
 
-    # Converts the share inventory to a dataframe and aligns with the original inventory dataframe.
-    # Both the share and folder name need to be the same for a row to match in both dataframes.
-    # indicator=True adds a new column, "_merge", which shows if the row was in one or both dataframes.
-    share_df = pd.DataFrame.from_dict(share_inventory)
-    df = df.merge(share_df, on=['Share', 'Folder'], how='outer', indicator=True)
-
-    # TODO: temp fix for error until I find the source
-    df = df.drop_duplicates()
-
-    # Updates the "Audit_Result" column for rows that are not in both shares.
-    df.loc[df['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
-    df.loc[df['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
-
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df['Audit_Inventory'] = df['Audit_Inventory'].fillna('Correct')
-
-    # Cleans up and returns the dataframe.
-    # The temporary column '_merge' is removed and the rows are sorted.
-    df = df.drop(['_merge'], axis=1)
-    df = df.sort_values(['Share', 'Folder'])
-
-    return df
-
-
-def check_required(df):
-    """Find blank cells in required columns
-
-    @param
-    df (pandas dataframe): data from the inventory after cleanup
-
-    @return
-    df (pandas dataframe): data from inventory with updated Audit_Required column
-    """
-
-    # List of required columns, after being renamed by the script.
-    required = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date']
-
-    # Find the blank cells in each of the required columns
-    # and adds an error to the Audit_Required column.
-    for column_name in required:
-        df.loc[pd.isna(df[column_name]), 'Audit_Required'] = 'Missing'
-
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df['Audit_Required'] = df['Audit_Required'].fillna('Correct')
-
-    return df
+    # Converts the share inventory to a dataframe.
+    df_shares = pd.DataFrame.from_dict(share_inventory)
+    return df_shares
 
 
 def read_inventory(path):
@@ -199,23 +213,23 @@ def read_inventory(path):
     # Reads every sheet in the Excel spreadsheet, except for "Examples", into a single dataframe.
     sheet_dict = pd.read_excel(path, sheet_name=None)
     del sheet_dict['Examples']
-    df = pd.concat(sheet_dict, ignore_index=True)
+    df_inventory = pd.concat(sheet_dict, ignore_index=True)
 
     # Removes the rows that describe each column
     # by keeping all rows except ones with the description in the first column.
-    df = df[df['Share (required)'] != 'Name of the Hub share.']
+    df_inventory = df_inventory[df_inventory['Share (required)'] != 'Name of the Hub share.']
 
     # Removes the rows of content that has been deleted
     # by keeping rows without information in the deleted date column.
     # Then it removes that column, which only has blanks remaining.
-    df = df[df['Deleted (date) (optional)'].isnull()]
-    df = df.drop(['Deleted (date) (optional)'], axis=1)
+    df_inventory = df_inventory[df_inventory['Deleted (date) (optional)'].isnull()]
+    df_inventory = df_inventory.drop(['Deleted (date) (optional)'], axis=1)
 
     # Removes blank rows.
-    df = df.dropna(how='all')
+    df_inventory = df_inventory.dropna(how='all')
 
     # Simplifies column names.
-    df = df.rename({'Share (required)': 'Share',
+    df_inventory = df_inventory.rename({'Share (required)': 'Share',
                     'Folder Name (required if not share)': 'Folder',
                     'Use Policy Category (required)': 'Use',
                     'Person Responsible (required)': 'Responsible',
@@ -223,18 +237,18 @@ def read_inventory(path):
                     'Additional information (optional)': 'Notes'}, axis=1)
 
     # Adds new columns for recording errors found during the audit, one for each error type.
-    df['Audit_Dates'] = np.nan
-    df['Audit_Inventory'] = np.nan
-    df['Audit_Required'] = np.nan
+    df_inventory['Audit_Dates'] = np.nan
+    df_inventory['Audit_Inventory'] = np.nan
+    df_inventory['Audit_Required'] = np.nan
 
-    return df
+    return df_inventory
 
 
 if __name__ == '__main__':
 
     # Path to the Hub inventory and shares information csv (from the script arguments).
     # If either argument is missing or not a valid path, exits the script.
-    inventory_path, shares_path, error_list = check_arguments(sys.argv)
+    inventory_path, shares_info_path, error_list = check_arguments(sys.argv)
     if len(error_list) > 0:
         for error in error_list:
             print(error)
@@ -244,7 +258,10 @@ if __name__ == '__main__':
     inventory_df = read_inventory(inventory_path)
 
     # Reads the share information into a dataframe.
-    shares_df = pd.read_csv(shares_path)
+    shares_info_df = pd.read_csv(shares_info_path)
+
+    # Makes a dataframe with the folders in the shares, based on patterns in shares_info_df.
+    shares_df = make_shares_inventory(shares_info_df)
 
     # Prints the number of rows in the inventory for the audit results spreadsheet.
     print("Rows in the inventory (after cleanup):", len(inventory_df.index))
