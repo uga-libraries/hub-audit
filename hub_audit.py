@@ -74,8 +74,8 @@ def check_dates(df_inventory):
     df_inventory = pd.concat([df_date, df_nondate])
     df_inventory = df_inventory.sort_values(['Share', 'Folder'])
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Dates'] = df_inventory['Audit_Dates'].fillna('Correct')
+    # Updates the value of any cells that are still 'TBD' (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Dates'] == 'TBD', 'Audit_Dates'] = 'Correct'
 
     return df_inventory
 
