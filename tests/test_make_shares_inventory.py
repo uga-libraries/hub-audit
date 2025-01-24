@@ -48,9 +48,10 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(result, expected, "Problem with test for top")
 
     def test_unexpected(self):
-        """Test for an unexpected pattern (error)"""
+        """Test for an unexpected pattern (error)
+        It should also print 'Error: config has an unexpected pattern pattern_error'"""
         # Makes variable for function input and run the function being tested.
-        shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'pattern error', NaN]],
+        shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'pattern_error', NaN]],
                                    columns=['name', 'path', 'pattern', 'folders'])
         shares_df = make_shares_inventory(shares_info_df)
 
