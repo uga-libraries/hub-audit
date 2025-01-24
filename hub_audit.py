@@ -134,8 +134,8 @@ def check_required(df_inventory):
     for column_name in required:
         df_inventory.loc[pd.isna(df_inventory[column_name]), 'Audit_Required'] = 'Missing'
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Required'] = df_inventory['Audit_Required'].fillna('Correct')
+    # Updates the value of any cells that are still TBD (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Required'] == 'TBD', 'Audit_Required'] = 'Correct'
 
     return df_inventory
 
