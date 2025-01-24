@@ -3,7 +3,6 @@ Experiment into automating the majority of the analysis for the Digital Producti
 Required arguments: paths to the Digital Production Hub Inventory (Excel spreadsheet) and a CSV with share information.
 """
 import datetime
-import numpy as np
 import os
 import pandas as pd
 import sys
