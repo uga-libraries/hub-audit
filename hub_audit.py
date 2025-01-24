@@ -74,8 +74,8 @@ def check_dates(df_inventory):
     df_inventory = pd.concat([df_date, df_nondate])
     df_inventory = df_inventory.sort_values(['Share', 'Folder'])
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Dates'] = df_inventory['Audit_Dates'].fillna('Correct')
+    # Updates the value of any cells that are still 'TBD' (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Dates'] == 'TBD', 'Audit_Dates'] = 'Correct'
 
     return df_inventory
 
@@ -105,8 +105,8 @@ def check_inventory(df_inventory, df_shares):
     df_inventory.loc[df_inventory['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
     df_inventory.loc[df_inventory['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Inventory'] = df_inventory['Audit_Inventory'].fillna('Correct')
+    # Updates the value of any cells that are still TBD (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Inventory'] == 'TBD', 'Audit_Inventory'] = 'Correct'
 
     # Cleans up and returns the dataframe.
     # The temporary column '_merge' is removed and the rows are sorted.
@@ -134,8 +134,8 @@ def check_required(df_inventory):
     for column_name in required:
         df_inventory.loc[pd.isna(df_inventory[column_name]), 'Audit_Required'] = 'Missing'
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Required'] = df_inventory['Audit_Required'].fillna('Correct')
+    # Updates the value of any cells that are still TBD (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Required'] == 'TBD', 'Audit_Required'] = 'Correct'
 
     return df_inventory
 
@@ -237,9 +237,10 @@ def read_inventory(path):
                     'Additional information (optional)': 'Notes'}, axis=1)
 
     # Adds new columns for recording errors found during the audit, one for each error type.
-    df_inventory['Audit_Dates'] = np.nan
-    df_inventory['Audit_Inventory'] = np.nan
-    df_inventory['Audit_Required'] = np.nan
+    # Initial values are TBD, so they can be updated with the results later without a dtype FutureWarning
+    df_inventory['Audit_Dates'] = 'TBD'
+    df_inventory['Audit_Inventory'] = 'TBD'
+    df_inventory['Audit_Required'] = 'TBD'
 
     return df_inventory
 
