@@ -1,9 +1,7 @@
 """
 Tests for the function check_inventory(), which compares the inventory to the shares.
 
-For easier testing, the variables with the contents of test_shares.csv (usually made by reading a CSV)
-and inventory_df (usually made by reading an Excel spreadsheet with read_inventory())
-are made within the test functions.
+To simply testing, the inventory df only includes columns needed for the comparison.
 """
 import unittest
 from hub_audit import check_inventory
@@ -21,156 +19,128 @@ def df_to_list(df):
 
 class MyTestCase(unittest.TestCase):
 
-    def setUp(self):
-        """Variable used in all the tests."""
-        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
-                        'Audit_Dates', 'Audit_Inventory', 'Audit_Required']
-
-    def test_correct_second(self):
-        """Test for a share where some second level folders are included and the share matches the inventory"""
+    def test_match(self):
+        """Test for when the inventory matches the share contents"""
         # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Second_Level', join('shares', 'Second_Level'), 'second', 'S_1|S_3']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
+        inventory_df = DataFrame([['share_a', 'folder_a', NaN],
+                                  ['share_a', 'file.txt', NaN],
+                                  ['share_b', 'folder_b\\folder_b1', NaN],
+                                  ['share_c', 'born-digital\\closed\\folder', NaN]],
+                                 columns=['Share', 'Folder', 'Audit_Inventory'])
+        shares_df = DataFrame([['share_a', 'folder_a'],
+                               ['share_a', 'file.txt'],
+                               ['share_b', 'folder_b\\folder_b1'],
+                               ['share_c', 'born-digital\\closed\\folder']],
+                              columns=['Share', 'Folder'])
+        inventory_df = check_inventory(inventory_df, shares_df)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_1\\S_1b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_3\\S_3b', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
-        self.assertEqual(result, expected, "Problem with test for correct, second level folders")
+        expected = [['Share', 'Folder', 'Audit_Inventory'],
+                    ['share_a', 'file.txt', 'Correct'],
+                    ['share_a', 'folder_a', 'Correct'],
+                    ['share_b', 'folder_b\\folder_b1', 'Correct'],
+                    ['share_c', 'born-digital\\closed\\folder', 'Correct']]
+        self.assertEqual(result, expected, "Problem with test for match")
 
-    def test_correct_share(self):
-        """Test for a share where the inventory is just the share name and the share matches the inventory"""
+    def test_match_duplicates(self):
+        """Test for when the inventory matches the share contents, which has duplicate rows"""
         # Makes variables for function input and run the function being tested.
-        df = DataFrame([['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['mezz_one', join('shares', 'mezz_one'), 'share', '']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
+        inventory_df = DataFrame([['share_a', 'folder_a', NaN],
+                                  ['share_a', 'file.txt', NaN],
+                                  ['share_b', 'folder_b\\folder_b1', NaN],
+                                  ['share_c', 'born-digital\\closed\\folder', NaN]],
+                                 columns=['Share', 'Folder', 'Audit_Inventory'])
+        shares_df = DataFrame([['share_a', 'folder_a'],
+                               ['share_a', 'folder_a'],
+                               ['share_a', 'folder_a'],
+                               ['share_a', 'file.txt'],
+                               ['share_b', 'folder_b\\folder_b1'],
+                               ['share_b', 'folder_b\\folder_b1'],
+                               ['share_c', 'born-digital\\closed\\folder']],
+                              columns=['Share', 'Folder'])
+        inventory_df = check_inventory(inventory_df, shares_df)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['mezz_one', 'mezz_one', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
-        self.assertEqual(result, expected, "Problem with test for correct, share name")
+        expected = [['Share', 'Folder', 'Audit_Inventory'],
+                    ['share_a', 'file.txt', 'Correct'],
+                    ['share_a', 'folder_a', 'Correct'],
+                    ['share_b', 'folder_b\\folder_b1', 'Correct'],
+                    ['share_c', 'born-digital\\closed\\folder', 'Correct']]
+        self.assertEqual(result, expected, "Problem with test for match, duplicates")
 
-    def test_correct_top(self):
-        """Test for a share where only top level folders are included and the share matches the inventory"""
+    def test_not_inventory(self):
+        """Test for when some rows are only in the share and not the inventory"""
         # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
+        inventory_df = DataFrame([['share_a', 'folder_a', NaN],
+                                  ['share_a', 'file.txt', NaN]],
+                                 columns=['Share', 'Folder', 'Audit_Inventory'])
+        shares_df = DataFrame([['share_a', 'file.txt'],
+                               ['share_a', 'folder_a'],
+                               ['share_b', 'file.txt'],
+                               ['share_b', 'folder_b\\folder_b1'],
+                               ['share_c', 'born-digital\\closed\\folder']],
+                              columns=['Share', 'Folder'])
+        inventory_df = check_inventory(inventory_df, shares_df)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan']]
-        self.assertEqual(result, expected, "Problem with test for correct, top folders")
+        expected = [['Share', 'Folder', 'Audit_Inventory'],
+                    ['share_a', 'file.txt', 'Correct'],
+                    ['share_a', 'folder_a', 'Correct'],
+                    ['share_b', 'file.txt', 'Not in inventory'],
+                    ['share_b', 'folder_b\\folder_b1', 'Not in inventory'],
+                    ['share_c', 'born-digital\\closed\\folder', 'Not in inventory']]
+        self.assertEqual(result, expected, "Problem with test for not in inventory")
 
-    def test_error_extra_file(self):
-        """Test for when a share has a file at the top level of the share, instead of just folders"""
+    def test_not_share(self):
+        """Test for when some rows are only in the inventory and not the share"""
         # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Extra', join('shares', 'Extra'), 'top', '']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
+        inventory_df = DataFrame([['share_a', 'born-digital\\closed\\folder', NaN],
+                                  ['share_a', 'folder_a', NaN],
+                                  ['share_a', 'file.txt', NaN],
+                                  ['share_b', 'folder_b\\folder_b1', NaN],
+                                  ['share_c', 'born-digital\\closed\\folder', NaN]],
+                                 columns=['Share', 'Folder', 'Audit_Inventory'])
+        shares_df = DataFrame([['share_a', 'folder_a'],
+                               ['share_c', 'born-digital\\closed\\folder']],
+                              columns=['Share', 'Folder'])
+        inventory_df = check_inventory(inventory_df, shares_df)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Extra', 'E_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Extra', 'E_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Extra', 'E_3', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Extra', 'Text.txt', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan']]
-        self.assertEqual(result, expected, "Problem with test for error, extra file")
+        expected = [['Share', 'Folder', 'Audit_Inventory'],
+                    ['share_a', 'born-digital\\closed\\folder', 'Not in share'],
+                    ['share_a', 'file.txt', 'Not in share'],
+                    ['share_a', 'folder_a', 'Correct'],
+                    ['share_b', 'folder_b\\folder_b1', 'Not in share'],
+                    ['share_c', 'born-digital\\closed\\folder', 'Correct']]
+        self.assertEqual(result, expected, "Problem with test for not in share")
 
-    def test_error_inventory_only(self):
-        """Test for when folders are in the inventory but not the share"""
+    def test_variety(self):
+        """Test for when some rows are just in the inventory, some just in the share, and some match"""
         # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
+        inventory_df = DataFrame([['share_c', 'born-digital\\closed\\folder', NaN],
+                                  ['share_a', 'folder_a', NaN],
+                                  ['share_a', 'file.txt', NaN]],
+                                 columns=['Share', 'Folder', 'Audit_Inventory'])
+        shares_df = DataFrame([['share_a', 'folder_a'],
+                               ['share_b', 'file.txt'],
+                               ['share_b', 'folder_b\\folder_b1'],
+                               ['share_c', 'born-digital\\closed\\folder']],
+                              columns=['Share', 'Folder'])
+        inventory_df = check_inventory(inventory_df, shares_df)
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Top', 'Include.txt', 'Backlog', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'Missing_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
-                    ['Top', 'Missing_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
-                    ['Top', 'Missing_3', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
-                    ['Top', 'T_1', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_Hub', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],]
-        self.assertEqual(result, expected, "Problem with test for error, inventory only")
-
-    def test_error_inventory_share(self):
-        """Test for when folders are missing from both the inventory and share"""
-        # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Top', join('shares', 'Top'), 'top', '']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
-
-        # Tests if the resulting dataframe has the expected data.
-        result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Top', 'Include.txt', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
-                    ['Top', 'Inventory_Only', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Not in share', 'nan'],
-                    ['Top', 'T_1', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
-                    ['Top', 'T_2', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Top', 'T_Hub', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],]
-        self.assertEqual(result, expected, "Problem with test for error, inventory and share")
-
-    def test_error_share_only(self):
-        """Test for when folders are in the share but not the inventory"""
-        # Makes variables for function input and run the function being tested.
-        df = DataFrame([['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN],
-                        ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', NaN, NaN, NaN, NaN, NaN]],
-                       columns=self.columns)
-        df_shares = DataFrame([['Second_Level', join('shares', 'Second_Level'), 'second', 'S_1|S_3']],
-                              columns=['name', 'path', 'pattern', 'folders'])
-        inventory_df = check_inventory(df, df_shares)
-
-        # Tests if the resulting dataframe has the expected data.
-        result = df_to_list(inventory_df)
-        expected = [self.columns,
-                    ['Second_Level', 'S_1\\S_1a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_1\\S_1b', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
-                    ['Second_Level', 'S_2', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan'],
-                    ['Second_Level', 'S_3\\S_3a', 'Access/Mezzanine', 'JD', 'permanent', 'nan', 'nan', 'nan', 'Correct', 'nan'],
-                    ['Second_Level', 'S_3\\S_3b', 'nan', 'nan', 'nan', 'nan', 'nan', 'nan', 'Not in inventory', 'nan']]
-        self.assertEqual(result, expected, "Problem with test for error, share only")
+        expected = [['Share', 'Folder', 'Audit_Inventory'],
+                    ['share_a', 'file.txt', 'Not in share'],
+                    ['share_a', 'folder_a', 'Correct'],
+                    ['share_b', 'file.txt', 'Not in inventory'],
+                    ['share_b', 'folder_b\\folder_b1', 'Not in inventory'],
+                    ['share_c', 'born-digital\\closed\\folder', 'Correct']]
+        self.assertEqual(result, expected, "Problem with test for variety")
 
 
 if __name__ == '__main__':
