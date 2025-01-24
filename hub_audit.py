@@ -88,7 +88,7 @@ def check_inventory(df_inventory, df_shares):
     df_shares (pandas dataframe): contents of all shares
 
     @return
-    df (pandas dataframe): data from inventory updated with inventory match error
+    df_inventory (pandas dataframe): data from inventory updated with inventory match error
     Audit_Inventory column is updated for folders that are not in the share
     Folders are added to the dataframe if they are in the share but not the inventory
     """
