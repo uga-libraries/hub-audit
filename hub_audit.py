@@ -105,8 +105,8 @@ def check_inventory(df_inventory, df_shares):
     df_inventory.loc[df_inventory['_merge'] == 'left_only', 'Audit_Inventory'] = 'Not in share'
     df_inventory.loc[df_inventory['_merge'] == 'right_only', 'Audit_Inventory'] = 'Not in inventory'
 
-    # Updates the value of any cells that are still blank (have no errors) with "Correct".
-    df_inventory['Audit_Inventory'] = df_inventory['Audit_Inventory'].fillna('Correct')
+    # Updates the value of any cells that are still TBD (have no errors) with "Correct".
+    df_inventory.loc[df_inventory['Audit_Inventory'] == 'TBD', 'Audit_Inventory'] = 'Correct'
 
     # Cleans up and returns the dataframe.
     # The temporary column '_merge' is removed and the rows are sorted.
