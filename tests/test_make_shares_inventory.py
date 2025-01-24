@@ -12,7 +12,7 @@ from pandas import DataFrame
 class MyTestCase(unittest.TestCase):
 
     def test_share(self):
-        """Test for the pattern share"""
+        """Test for the 'share' pattern"""
         # Makes variable for function input and run the function being tested.
         shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'share', NaN],
                                     ['b', 'make_inv\\share\\b', 'share', NaN]],
@@ -24,6 +24,18 @@ class MyTestCase(unittest.TestCase):
         expected = [['Share', 'Folder'],
                     ['a', 'a'],
                     ['b', 'b']]
+        self.assertEqual(result, expected, "Problem with test for share")
+
+    def test_unexpected(self):
+        """Test for an unexpected pattern (error)"""
+        # Makes variable for function input and run the function being tested.
+        shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'pattern error', NaN]],
+                                   columns=['name', 'path', 'pattern', 'folders'])
+        shares_df = make_shares_inventory(shares_info_df)
+
+        # Tests if the resulting dataframe has the expected data (empty).
+        result = df_to_list(shares_df)
+        expected = [['Share', 'Folder']]
         self.assertEqual(result, expected, "Problem with test for share")
 
 
