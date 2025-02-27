@@ -47,7 +47,7 @@ The input (inventories, share csvs, and share folders) is either in the repo or 
 This is the portion of the workflow directly related to the script.
 See the procedure documentation in the Audit Reports folder on DCWG Teams for the entire workflow.
 
-1. Download the Digital Production Hub Inventory spreadsheet and delete the "Hub Inventory Examples" tab.
+1. Download the Digital Production Hub Inventory spreadsheet.
    
 
 2. Make or update the share CSV. (DCWG Teams in Audit Reports folder) 
