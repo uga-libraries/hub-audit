@@ -13,7 +13,7 @@ Python libraries pandas and numpy (see requirements.txt)
 
 ### Installation
 
-Download the "Digital Production Hub Inventory.xlsx" from the DCWG Teams Digital Production Hub folder.
+Download the "Digital Production Hub Inventory.xlsx" from the Teams Digital Production Hub folder.
 
 Make a CSV with information about every share included in the audit, with the following columns:
 - name
@@ -45,12 +45,12 @@ The input (inventories, share csvs, and share folders) is either in the repo or 
 ## Workflow
 
 This is the portion of the workflow directly related to the script.
-See the procedure documentation in the Audit Reports folder on DCWG Teams for the entire workflow.
+See the procedure documentation in the Audit Reports folder on Teams for the entire workflow.
 
 1. Download the Digital Production Hub Inventory spreadsheet and delete the "Hub Inventory Examples" tab.
    
 
-2. Make or update the share CSV. (DCWG Teams in Audit Reports folder) 
+2. Make or update the share CSV. (Teams in Audit Reports folder) 
    
 3. Run the script. 
    It will make a CSV in the same folder as the Hub Inventory spreadsheet which compares the shares to the inventory 
