@@ -61,13 +61,13 @@ def check_dates(df_inventory):
     """
     # For the portion of the dataframe where the date is a day,
     # updates Audit_Result if the date is earlier than today.
-    df_date = df_inventory[(df_inventory['Review_Date'].apply(type) == datetime.datetime) | (df_inventory['Review_Date'].apply(type) == pd._libs.tslibs.timestamps.Timestamp)].copy()
+    df_date = df_inventory[(df_inventory['Review_Date'].apply(type) == datetime.datetime) | (df_inventory['Review_Date'].apply(type) == pd.Timestamp)].copy()
     today = datetime.datetime.today()
     df_date.loc[df_date['Review_Date'] < today, 'Audit_Dates'] = 'Expired'
 
     # For the portion of the dataframe where the date is not a day (not datetime),
     # updates Audit_Result if it isn't 'permanent' (case-insensitive).
-    df_nondate = df_inventory[(df_inventory['Review_Date'].apply(type) != datetime.datetime) & (df_inventory['Review_Date'].apply(type) != pd._libs.tslibs.timestamps.Timestamp)].copy()
+    df_nondate = df_inventory[(df_inventory['Review_Date'].apply(type) != datetime.datetime) & (df_inventory['Review_Date'].apply(type) != pd.Timestamp)].copy()
     df_nondate.loc[df_nondate['Review_Date'].str.lower() != 'permanent', 'Audit_Dates'] = 'Review'
 
     # Recombines the dataframes with the updated Audit_Result column.
