@@ -39,9 +39,11 @@ class MyTestCase(unittest.TestCase):
         result = df_to_list(inventory_df)
         expected = [self.columns,
                     ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
                     ['Share_B', 'B', 'Backlog', 'June', '6 months', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
                     ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for combined date formats")
 
@@ -59,9 +61,12 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, expired")
 
     def test_dates_future(self):
@@ -75,9 +80,12 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, future")
 
     def test_strings_not_permanent(self):

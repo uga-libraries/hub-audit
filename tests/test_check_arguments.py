@@ -48,7 +48,8 @@ class MyTestCase(unittest.TestCase):
 
     def test_share_invalid(self):
         """Test for when the share information argument is not a valid path"""
-        args = ['hub_audit.py', os.path.join('inventories', 'Digital Production Hub Inventory.xlsx'), 'error_shares.csv']
+        args = ['hub_audit.py', os.path.join('inventories', 'Digital Production Hub Inventory.xlsx'),
+                'error_shares.csv']
         result = check_arguments(args)
         expected = ('inventories\\Digital Production Hub Inventory.xlsx', None,
                     ['Provided share information "error_shares.csv" does not exist'])
@@ -63,7 +64,8 @@ class MyTestCase(unittest.TestCase):
 
     def test_extra_argument(self):
         """Test for when there are too many arguments provided"""
-        args = ['hub_audit.py', os.path.join('inventories', 'Digital Production Hub Inventory.xlsx'), 'test_shares.csv', 'x']
+        args = ['hub_audit.py', os.path.join('inventories', 'Digital Production Hub Inventory.xlsx'),
+                'test_shares.csv', 'x']
         result = check_arguments(args)
         expected = (None, None, ['Too many arguments. Should have two arguments, inventory and share information'])
         self.assertEqual(result, expected, 'Problem with test for extra argument')
