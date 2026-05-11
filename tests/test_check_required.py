@@ -4,9 +4,9 @@ Tests for the function check_required(), which finds missing values in required 
 For easier testing, the dataframe with inventory data is made within the function using pandas.
 In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
+import numpy as np
 import unittest
 from hub_audit import check_required
-from numpy import NaN
 from pandas import DataFrame
 
 
@@ -21,15 +21,15 @@ class MyTestCase(unittest.TestCase):
 
     def setUp(self):
         """Variable used in all the tests."""
-        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 
+        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
                         'Audit_Dates', 'Audit_Inventory', 'Audit_Required']
 
     def test_complete(self):
         """Test for an inventory with data in all required columns"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -43,9 +43,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_combination(self):
         """Test for an inventory missing data in multiple required columns"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [[NaN, NaN, 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                [NaN, NaN, NaN, NaN, NaN, 'Note', NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', NaN, 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [[np.nan, np.nan, 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, 'Note', np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', np.nan, 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -59,9 +59,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_date(self):
         """Test for an inventory missing data in the "Date to review for deletion" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -75,9 +75,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_folder(self):
         """Test for an inventory missing data in the "Folder Name" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', NaN, 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', NaN, 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -91,9 +91,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_person(self):
         """Test for an inventory missing data in the "Person Responsible" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [['Share', 'Folder1', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -107,9 +107,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_share(self):
         """Test for an inventory missing data in the "Share" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [[NaN, 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                [NaN, 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [[np.nan, 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                [np.nan, 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
@@ -123,9 +123,9 @@ class MyTestCase(unittest.TestCase):
     def test_missing_use(self):
         """Test for an inventory missing data in the "Use Policy Category" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', NaN, 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', np.nan, 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
         inventory_df = check_required(DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.

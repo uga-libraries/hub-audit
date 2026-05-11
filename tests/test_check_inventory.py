@@ -5,7 +5,6 @@ To simply testing, the inventory df only includes columns needed for the compari
 """
 import unittest
 from hub_audit import check_inventory
-from numpy import NaN
 from pandas import DataFrame
 
 
