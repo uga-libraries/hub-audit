@@ -1,10 +1,10 @@
 """
 Tests for the function read_inventory(), which reads data from Excel to a dataframe and cleans it up.
 """
+from datetime import datetime
+import os
 import unittest
 from hub_audit import read_inventory
-from datetime import datetime
-from os.path import join
 
 
 class MyTestCase(unittest.TestCase):
@@ -12,7 +12,7 @@ class MyTestCase(unittest.TestCase):
     def test_blank_rows(self):
         """Test for an inventory with blank rows
         Includes a share with no blank (mezzanine_1), some blank (digital_ingest), and all blank (russell)"""
-        inventory_path = join('inventories', 'Digital Production Hub Inventory_Blank Rows.xlsx')
+        inventory_path = os.path.join('inventories', 'Digital Production Hub Inventory_Blank Rows.xlsx')
         inventory_df = read_inventory(inventory_path)
 
         result = inventory_df.fillna('')
@@ -27,7 +27,7 @@ class MyTestCase(unittest.TestCase):
     def test_deletions(self):
         """Test for an inventory with rows for content that has been deleted
         Includes a share with none deleted (DLG_TWO), some deleted (Dig Stew), and all deleted (SCL_Imaging_Lab)"""
-        inventory_path = join('inventories', 'Digital Production Hub Inventory_Deletions.xlsx')
+        inventory_path = os.path.join('inventories', 'Digital Production Hub Inventory_Deletions.xlsx')
         inventory_df = read_inventory(inventory_path)
 
         result = inventory_df.fillna('')
@@ -42,7 +42,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_usual(self):
         """Test for an inventory with the usual data"""
-        inventory_path = join('inventories', 'Digital Production Hub Inventory_Usual.xlsx')
+        inventory_path = os.path.join('inventories', 'Digital Production Hub Inventory_Usual.xlsx')
         inventory_df = read_inventory(inventory_path)
 
         result = inventory_df.fillna('')

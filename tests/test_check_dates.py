@@ -4,11 +4,11 @@ Tests for the function check_dates(), which finds dates to review for deletion t
 For easier testing, the dataframe with inventory data is made within the function using pandas.
 In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
+from datetime import datetime
 import numpy as np
+import pandas as pd
 import unittest
 from hub_audit import check_dates
-from datetime import datetime
-from pandas import DataFrame
 
 
 def df_to_list(df):
@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
                 ['Share_B', 'B', 'Backlog', 'June', '6 months', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_C', 'C2', 'Backlog', 'June', 'permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -54,7 +54,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -70,7 +70,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -86,7 +86,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share_A', 'A1', 'Backlog', 'June', '6 months', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_A', 'A2', 'Backlog', 'June', 'year', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_B', 'B', 'Backlog', 'June', 'In folder title', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -102,7 +102,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share_B', 'B', 'Backlog', 'June', 'permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)

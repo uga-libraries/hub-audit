@@ -5,9 +5,9 @@ For easier testing, the dataframe with inventory data is made within the functio
 In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
 import numpy as np
+import pandas as pd
 import unittest
 from hub_audit import check_required
-from pandas import DataFrame
 
 
 def df_to_list(df):
@@ -30,7 +30,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -46,7 +46,7 @@ class MyTestCase(unittest.TestCase):
         rows = [[np.nan, np.nan, 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 [np.nan, np.nan, np.nan, np.nan, np.nan, 'Note', np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder3', np.nan, 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -62,7 +62,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder2', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -78,7 +78,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -94,7 +94,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share', 'Folder1', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder2', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder3', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -110,7 +110,7 @@ class MyTestCase(unittest.TestCase):
         rows = [[np.nan, 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 [np.nan, 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
@@ -126,7 +126,7 @@ class MyTestCase(unittest.TestCase):
         rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
                 ['Share', 'Folder3', np.nan, 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)

@@ -3,10 +3,10 @@ Tests for the function make_shares_inventory(),
 which makes a dataframe with the contents of all shares, to the level of detail specified in df_info.
 """
 import numpy as np
+import pandas as pd
 import unittest
 from hub_audit import make_shares_inventory
 from test_check_inventory import df_to_list
-from pandas import DataFrame
 
 
 class MyTestCase(unittest.TestCase):
@@ -14,7 +14,7 @@ class MyTestCase(unittest.TestCase):
     def test_second(self):
         """Test for the 'second' pattern"""
         # Makes variable for function input and run the function being tested.
-        shares_info_df = DataFrame([['a', 'make_inv\\second\\a', 'second', ''],
+        shares_info_df = pd.DataFrame([['a', 'make_inv\\second\\a', 'second', ''],
                                     ['b', 'make_inv\\second\\b', 'second', ''],
                                     ['c', 'make_inv\\second\\c', 'second', 'born-digital'],
                                     ['d', 'make_inv\\second\\d', 'second', 'born-digital'],
@@ -43,7 +43,7 @@ class MyTestCase(unittest.TestCase):
     def test_share(self):
         """Test for the 'share' pattern"""
         # Makes variable for function input and run the function being tested.
-        shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'share', np.nan],
+        shares_info_df = pd.DataFrame([['a', 'make_inv\\share\\a', 'share', np.nan],
                                     ['b', 'make_inv\\share\\b', 'share', np.nan]],
                                    columns=['name', 'path', 'pattern', 'folders'])
         shares_df = make_shares_inventory(shares_info_df)
@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
     def test_top(self):
         """Test for the 'top' pattern"""
         # Makes variable for function input and run the function being tested.
-        shares_info_df = DataFrame([['a', 'make_inv\\top\\a', 'top', np.nan],
+        shares_info_df = pd.DataFrame([['a', 'make_inv\\top\\a', 'top', np.nan],
                                     ['b', 'make_inv\\top\\b', 'top', np.nan],
                                     ['c', 'make_inv\\top\\c', 'top', np.nan],
                                     ['d', 'make_inv\\top\\d', 'top', np.nan]],
@@ -80,7 +80,7 @@ class MyTestCase(unittest.TestCase):
         """Test for an unexpected pattern (error)
         It should also print 'Error: config has an unexpected pattern pattern_error'"""
         # Makes variable for function input and run the function being tested.
-        shares_info_df = DataFrame([['a', 'make_inv\\share\\a', 'pattern_error', np.nan]],
+        shares_info_df = pd.DataFrame([['a', 'make_inv\\share\\a', 'pattern_error', np.nan]],
                                    columns=['name', 'path', 'pattern', 'folders'])
         shares_df = make_shares_inventory(shares_info_df)
 
