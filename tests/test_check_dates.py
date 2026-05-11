@@ -4,16 +4,16 @@ Tests for the function check_dates(), which finds dates to review for deletion t
 For easier testing, the dataframe with inventory data is made within the function using pandas.
 In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
+from datetime import datetime
+import numpy as np
+import pandas as pd
 import unittest
 from hub_audit import check_dates
-from datetime import datetime
-from numpy import NaN
-from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
@@ -28,21 +28,23 @@ class MyTestCase(unittest.TestCase):
     def test_combination(self):
         """Test for an inventory where the date formatting is mixed"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_B', 'B', 'Backlog', 'June', '6 months', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_C', 'C2', 'Backlog', 'June', 'permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_B', 'B', 'Backlog', 'June', '6 months', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_C', 'C2', 'Backlog', 'June', 'permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', '6 months', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', '6 months', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
+                    ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for combined date formats")
 
     def test_dates_expired(self):
@@ -51,65 +53,71 @@ class MyTestCase(unittest.TestCase):
         Still working on what is causing that problem - see Issue 5.
         """
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired',
+                     'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, expired")
 
     def test_dates_future(self):
         """Test for an inventory where the dates are formatted as a date and the dates are in the future"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        rows = [['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct',
+                     'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, future")
 
     def test_strings_not_permanent(self):
         """Test for an inventory where the dates are a string but not 'permanent' or 'Permanent'"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', '6 months', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_A', 'A2', 'Backlog', 'June', 'year', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_B', 'B', 'Backlog', 'June', 'In folder title', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        rows = [['Share_A', 'A1', 'Backlog', 'June', '6 months', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_A', 'A2', 'Backlog', 'June', 'year', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_B', 'B', 'Backlog', 'June', 'In folder title', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', '6 months', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', 'year', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', 'In folder title', 'nan', 'nan', 'Review', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', '6 months', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', 'year', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', 'In folder title', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for strings, not permanent")
 
     def test_strings_permanent(self):
         """Test for an inventory where the dates are either 'permanent' or 'Permanent'"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share_B', 'B', 'Backlog', 'June', 'permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_dates(DataFrame(rows, columns=self.columns))
+        rows = [['Share_A', 'A1', 'Backlog', 'June', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share_B', 'B', 'Backlog', 'June', 'permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_dates(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', 'permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for strings, permanent")
 
 

@@ -4,15 +4,15 @@ Tests for the function check_required(), which finds missing values in required 
 For easier testing, the dataframe with inventory data is made within the function using pandas.
 In production, it is made by reading an Excel spreadsheet using read_inventory().
 """
+import numpy as np
+import pandas as pd
 import unittest
 from hub_audit import check_required
-from numpy import NaN
-from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
@@ -21,119 +21,137 @@ class MyTestCase(unittest.TestCase):
 
     def setUp(self):
         """Variable used in all the tests."""
-        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date', 
+        self.columns = ['Share', 'Folder', 'Use', 'Responsible', 'Review_Date', 'Notes', 'Deleted_Date',
                         'Audit_Dates', 'Audit_Inventory', 'Audit_Required']
 
     def test_complete(self):
         """Test for an inventory with data in all required columns"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct']]
         self.assertEqual(result, expected, "Problem with test for complete data")
 
     def test_missing_combination(self):
         """Test for an inventory missing data in multiple required columns"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [[NaN, NaN, 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                [NaN, NaN, NaN, NaN, NaN, 'Note', NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', NaN, 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [[np.nan, np.nan, 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                [np.nan, np.nan, np.nan, np.nan, np.nan, 'Note', np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', np.nan, 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['nan', 'nan', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['nan', 'nan', 'nan', 'nan', 'nan', 'Note', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'nan', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['BLANK', 'BLANK', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['BLANK', 'BLANK', 'BLANK', 'BLANK', 'BLANK', 'Note', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder3', 'BLANK', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing combinations of required columns")
 
     def test_missing_date(self):
         """Test for an inventory missing data in the "Date to review for deletion" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', NaN, NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', np.nan, np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct']]
         self.assertEqual(result, expected, "Problem with test for missing date to review for deletion")
 
     def test_missing_folder(self):
         """Test for an inventory missing data in the "Folder Name" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', NaN, 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', NaN, 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', np.nan, 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'nan', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'nan', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['Share', 'BLANK', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'BLANK', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing folder name")
 
     def test_missing_person(self):
         """Test for an inventory missing data in the "Person Responsible" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', 'Medium Priority', NaN, 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [['Share', 'Folder1', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', 'Medium Priority', np.nan, 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'Folder3', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing person responsible")
 
     def test_missing_share(self):
         """Test for an inventory missing data in the "Share" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [[NaN, 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                [NaN, 'Folder3', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [[np.nan, 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                [np.nan, 'Folder3', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['nan', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['nan', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['BLANK', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['BLANK', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing share")
 
     def test_missing_use(self):
         """Test for an inventory missing data in the "Use Policy Category" column"""
         # Make a dataframe with Hub inventory data and run the function being tested.
-        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD'],
-                ['Share', 'Folder3', NaN, 'Bill', 'Permanent', NaN, NaN, 'TBD', 'TBD', 'TBD']]
-        inventory_df = check_required(DataFrame(rows, columns=self.columns))
+        rows = [['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD'],
+                ['Share', 'Folder3', np.nan, 'Bill', 'Permanent', np.nan, np.nan, 'TBD', 'TBD', 'TBD']]
+        inventory_df = check_required(pd.DataFrame(rows, columns=self.columns))
 
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder3', 'nan', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD',
+                     'Correct'],
+                    ['Share', 'Folder3', 'BLANK', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing use policy category")
 
 

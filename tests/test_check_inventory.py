@@ -3,15 +3,14 @@ Tests for the function check_inventory(), which compares the inventory to the sh
 
 To simply testing, the inventory df only includes columns needed for the comparison.
 """
+import pandas as pd
 import unittest
 from hub_audit import check_inventory
-from numpy import NaN
-from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
@@ -21,12 +20,12 @@ class MyTestCase(unittest.TestCase):
     def test_match(self):
         """Test for when the inventory matches the share contents"""
         # Makes variables for function input and run the function being tested.
-        inventory_df = DataFrame([['share_a', 'folder_a', 'TBD'],
+        inventory_df = pd.DataFrame([['share_a', 'folder_a', 'TBD'],
                                   ['share_a', 'file.txt', 'TBD'],
                                   ['share_b', 'folder_b\\folder_b1', 'TBD'],
                                   ['share_c', 'born-digital\\closed\\folder', 'TBD']],
                                  columns=['Share', 'Folder', 'Audit_Inventory'])
-        shares_df = DataFrame([['share_a', 'folder_a'],
+        shares_df = pd.DataFrame([['share_a', 'folder_a'],
                                ['share_a', 'file.txt'],
                                ['share_b', 'folder_b\\folder_b1'],
                                ['share_c', 'born-digital\\closed\\folder']],
@@ -45,12 +44,12 @@ class MyTestCase(unittest.TestCase):
     def test_match_duplicates(self):
         """Test for when the inventory matches the share contents, which has duplicate rows"""
         # Makes variables for function input and run the function being tested.
-        inventory_df = DataFrame([['share_a', 'folder_a', 'TBD'],
+        inventory_df = pd.DataFrame([['share_a', 'folder_a', 'TBD'],
                                   ['share_a', 'file.txt', 'TBD'],
                                   ['share_b', 'folder_b\\folder_b1', 'TBD'],
                                   ['share_c', 'born-digital\\closed\\folder', 'TBD']],
                                  columns=['Share', 'Folder', 'Audit_Inventory'])
-        shares_df = DataFrame([['share_a', 'folder_a'],
+        shares_df = pd.DataFrame([['share_a', 'folder_a'],
                                ['share_a', 'folder_a'],
                                ['share_a', 'folder_a'],
                                ['share_a', 'file.txt'],
@@ -72,10 +71,10 @@ class MyTestCase(unittest.TestCase):
     def test_not_inventory(self):
         """Test for when some rows are only in the share and not the inventory"""
         # Makes variables for function input and run the function being tested.
-        inventory_df = DataFrame([['share_a', 'folder_a', 'TBD'],
+        inventory_df = pd.DataFrame([['share_a', 'folder_a', 'TBD'],
                                   ['share_a', 'file.txt', 'TBD']],
                                  columns=['Share', 'Folder', 'Audit_Inventory'])
-        shares_df = DataFrame([['share_a', 'file.txt'],
+        shares_df = pd.DataFrame([['share_a', 'file.txt'],
                                ['share_a', 'folder_a'],
                                ['share_b', 'file.txt'],
                                ['share_b', 'folder_b\\folder_b1'],
@@ -96,13 +95,13 @@ class MyTestCase(unittest.TestCase):
     def test_not_share(self):
         """Test for when some rows are only in the inventory and not the share"""
         # Makes variables for function input and run the function being tested.
-        inventory_df = DataFrame([['share_a', 'born-digital\\closed\\folder', 'TBD'],
+        inventory_df = pd.DataFrame([['share_a', 'born-digital\\closed\\folder', 'TBD'],
                                   ['share_a', 'folder_a', 'TBD'],
                                   ['share_a', 'file.txt', 'TBD'],
                                   ['share_b', 'folder_b\\folder_b1', 'TBD'],
                                   ['share_c', 'born-digital\\closed\\folder', 'TBD']],
                                  columns=['Share', 'Folder', 'Audit_Inventory'])
-        shares_df = DataFrame([['share_a', 'folder_a'],
+        shares_df = pd.DataFrame([['share_a', 'folder_a'],
                                ['share_c', 'born-digital\\closed\\folder']],
                               columns=['Share', 'Folder'])
         inventory_df = check_inventory(inventory_df, shares_df)
@@ -120,11 +119,11 @@ class MyTestCase(unittest.TestCase):
     def test_variety(self):
         """Test for when some rows are just in the inventory, some just in the share, and some match"""
         # Makes variables for function input and run the function being tested.
-        inventory_df = DataFrame([['share_c', 'born-digital\\closed\\folder', 'TBD'],
+        inventory_df = pd.DataFrame([['share_c', 'born-digital\\closed\\folder', 'TBD'],
                                   ['share_a', 'folder_a', 'TBD'],
                                   ['share_a', 'file.txt', 'TBD']],
                                  columns=['Share', 'Folder', 'Audit_Inventory'])
-        shares_df = DataFrame([['share_a', 'folder_a'],
+        shares_df = pd.DataFrame([['share_a', 'folder_a'],
                                ['share_b', 'file.txt'],
                                ['share_b', 'folder_b\\folder_b1'],
                                ['share_c', 'born-digital\\closed\\folder']],
