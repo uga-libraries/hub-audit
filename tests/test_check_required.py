@@ -11,8 +11,8 @@ from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
@@ -35,9 +35,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct']]
         self.assertEqual(result, expected, "Problem with test for complete data")
 
     def test_missing_combination(self):
@@ -51,9 +51,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['nan', 'nan', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['nan', 'nan', 'nan', 'nan', 'nan', 'Note', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'nan', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['BLANK', 'BLANK', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['BLANK', 'BLANK', 'BLANK', 'BLANK', 'BLANK', 'Note', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder3', 'BLANK', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing combinations of required columns")
 
     def test_missing_date(self):
@@ -67,9 +67,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'nan', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'BLANK', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct']]
         self.assertEqual(result, expected, "Problem with test for missing date to review for deletion")
 
     def test_missing_folder(self):
@@ -83,9 +83,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'nan', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'nan', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['Share', 'BLANK', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'BLANK', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing folder name")
 
     def test_missing_person(self):
@@ -99,9 +99,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder3', 'Medium Priority', 'nan', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder3', 'Medium Priority', 'BLANK', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing person responsible")
 
     def test_missing_share(self):
@@ -115,9 +115,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['nan', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['nan', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['BLANK', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['BLANK', 'Folder3', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing share")
 
     def test_missing_use(self):
@@ -131,9 +131,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Correct'],
-                    ['Share', 'Folder3', 'nan', 'Bill', 'Permanent', 'nan', 'nan', 'TBD', 'TBD', 'Missing']]
+                    ['Share', 'Folder1', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['Share', 'Folder2', 'Medium Priority', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Correct'],
+                    ['Share', 'Folder3', 'BLANK', 'Bill', 'Permanent', 'BLANK', 'BLANK', 'TBD', 'TBD', 'Missing']]
         self.assertEqual(result, expected, "Problem with test for missing use policy category")
 
 

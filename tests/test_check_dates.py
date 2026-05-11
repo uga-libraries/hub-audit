@@ -12,8 +12,8 @@ from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
@@ -38,11 +38,11 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', '6 months', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', '6 months', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(3031, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_C', 'C2', 'Backlog', 'June', 'permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for combined date formats")
 
     def test_dates_expired(self):
@@ -59,9 +59,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'nan', 'nan', 'Expired', 'TBD', 'TBD'],
-                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2001, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2021, 1, 1, 0, 0), 'BLANK', 'BLANK', 'Expired', 'TBD', 'TBD'],
+                    ['Share_C', 'C1', 'Backlog', 'June', datetime(2931, 12, 14, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, expired")
 
     def test_dates_future(self):
@@ -75,9 +75,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', datetime(2122, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', datetime(2222, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', datetime(2322, 10, 15, 0, 0), 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for dates, future")
 
     def test_strings_not_permanent(self):
@@ -91,9 +91,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', '6 months', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', 'year', 'nan', 'nan', 'Review', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', 'In folder title', 'nan', 'nan', 'Review', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', '6 months', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', 'year', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', 'In folder title', 'BLANK', 'BLANK', 'Review', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for strings, not permanent")
 
     def test_strings_permanent(self):
@@ -107,9 +107,9 @@ class MyTestCase(unittest.TestCase):
         # Tests if the resulting dataframe has the expected data.
         result = df_to_list(inventory_df)
         expected = [self.columns,
-                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD'],
-                    ['Share_B', 'B', 'Backlog', 'June', 'permanent', 'nan', 'nan', 'Correct', 'TBD', 'TBD']]
+                    ['Share_A', 'A1', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_A', 'A2', 'Backlog', 'June', 'Permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD'],
+                    ['Share_B', 'B', 'Backlog', 'June', 'permanent', 'BLANK', 'BLANK', 'Correct', 'TBD', 'TBD']]
         self.assertEqual(result, expected, "Problem with test for strings, permanent")
 
 

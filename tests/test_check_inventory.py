@@ -9,8 +9,8 @@ from pandas import DataFrame
 
 
 def df_to_list(df):
-    """Fill blanks with the string 'nan' and convert each row in a dataframe to a list"""
-    df = df.fillna('nan')
+    """Fill blanks with the string 'BLANK' and convert each row in a dataframe to a list"""
+    df = df.fillna('BLANK')
     df_list = [df.columns.tolist()] + df.values.tolist()
     return df_list
 
